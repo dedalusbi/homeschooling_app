@@ -1,0 +1,96 @@
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth/welcome" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <!--Container que centraliza o conteúdo em ecrãs maiores-->
+  <div class="p-6 text-texto-profundo md:max-w-md md:mx-auto md:pt-12">
+
+    <h1 class="text-3xl font-bold mb-1">Crie sua conta</h1>
+    <p class="text-texto-suave mb-8">Preencha os dados para começar sua jornada no homeschooling</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+      <!--Nome completo-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nome completo</ion-label>
+        <div class="flex items-center">
+          <ion-input type="text" placeholder="Digite seu nome completo" formControlName="fullName" class="flex-grow text-base"></ion-input>
+          <ion-icon name="person" class="text-texto-suave text-xl ml-2"></ion-icon>
+        </div>
+        <!--Erro-->
+        <div *ngIf="f['fullName'].invalid && f['fullName'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+          Nome é obrigatório.
+        </div>
+      </div>
+
+      <!--Email-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Email</ion-label>
+        <div class="flex items-center">
+          <ion-input type="email" placeholder="Digite seu email" formControlName="email" class="flex-grow text-base"></ion-input>
+          <ion-icon name="mail" class="text-texto-suave text-xl ml-2"></ion-icon>
+        </div>
+        <!--Erro-->
+        <div *ngIf="f['email'].invalid && f['email'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            <span *ngIf="f['email'].errors?.['required']">Email é obrigatório.</span>
+            <span *ngIf="f['email'].errors?.['email']">Email inválido.</span>
+        </div>
+      </div>
+
+      <!--Senha-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Senha</ion-label>
+        <div class="flex items-center">
+          <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Digite sua senha" formControlName="password" class="flex-grow text-base"></ion-input>
+          <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" (click)="togglePassword()" class="text-texto-suave text-xl ml-2"></ion-icon>
+        </div>
+        <!--Erro-->
+        <div *ngIf="f['password'].invalid && f['password'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            <span *ngIf="f['password'].errors?.['required']">Senha é obrigatória.</span>
+            <span *ngIf="f['password'].errors?.['minlength']">Senha deve ter no mínimo 6 caracteres..</span>
+        </div>
+      </div>
+
+      <!--Confirmar Senha-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Confirmar Senha</ion-label>
+        <div class="flex items-center">
+          <ion-input [type]="showConfirmPassword ? 'text' : 'password'" placeholder="Confirme sua senha" formControlName="confirmPassword" class="flex-grow text-base"></ion-input>
+          <ion-icon [name]="showConfirmPassword ? 'eye-off' : 'eye'" class="text-texto-suave text-xl ml-2" (click)="toggleConfirmPassword()"></ion-icon>
+        </div>
+        <!--Erro-->
+        <div *ngIf="registerForm.hasError('mismatch') && f['confirmPassword'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            As senhas não coincidem.
+        </div>
+      </div>
+
+      <!--Termos-->
+      <div class="flex items-center mt-3">
+        <ion-checkbox formControlName="terms" class="mr-2"></ion-checkbox>
+        <ion-label class="text-sm text-texto-suave">Eu concordo com os <a href="#" class="text-azul-sereno font-medium hover:underline">Termos de Uso</a> 
+          e <a href=# class="text-azul-sereno font-medium hover:underline">Política de Privacidade</a></ion-label>
+      </div>
+      <div *ngIf="f['terms'].invalid && f['terms'].dirty" class="text-vermelho-erro text-xs mt-1">
+        Você deve aceitar os termos.
+      </div>
+
+      <!--Botão Submit-->
+      <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case mt-8 mb-6 [--background:theme(colors.azul-sereno)] text-white hover:bg-opacity-90" [disabled]="registerForm.invalid">
+        <ion-icon name="person-add" slot="start"></ion-icon>
+        Criar conta
+      </ion-button>
+
+    </form>
+
+
+    <div class="text-center text-texto-suave mt-8 md:mt-12">
+      Já tem uma conta? <a class="text-azul-sereno font-bold cursor-pointer hover:underline" (click)="goToLogin()">Entrar</a>
+    </div>
+
+  </div>
+</ion-content>
