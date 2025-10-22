@@ -1,13 +1,83 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>login</ion-title>
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth/welcome" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">login</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  
+  <!--Container que centraliza o conteúdo em ecrâs maiores-->
+  <div class="p-6 text-texto-profundo flex flex-col h-full md:max-w-md md:mx-auto md:justify-center">
+    <h1 class="text-3xl font-bold mb-10 text-center">Bem-vindo de volta!</h1>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!--Email-->
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+          <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Email</ion-label>
+          <div class="flex items-center">
+            <ion-input type="email" placeholder="Digite seu email" formControlName="email" class="flex-grow text-base"></ion-input>
+            <ion-icon name="mail" class="text-texto-suave text-xl ml-2"></ion-icon>
+          </div>
+          <!--Erro-->
+          <div *ngIf="f['email'].invalid && f['email'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+              <span *ngIf="f['email'].errors?.['required']">Email é obrigatório.</span>
+              <span *ngIf="f['email'].errors?.['email']">Email inválido.</span>
+          </div>
+        </div>
+
+        <!--Senha-->
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+          <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Senha</ion-label>
+          <div class="flex items-center">
+            <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Digite sua senha" formControlName="password" class="flex-grow text-base"></ion-input>
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" (click)="togglePassword()" class="text-texto-suave text-xl ml-2"></ion-icon>
+          </div>
+          <!--Erro-->
+          <div *ngIf="f['password'].invalid && f['password'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            Senha é obrigatória.
+          </div>
+        </div>
+
+        <!--Esqueci Senha-->
+        <div class="text-right -mt-2 mb-4">
+          <a href="#" class="text-sm text-azul-sereno no-underline hover:underline">Esqueci minha senha</a>
+        </div>
+
+        <!--Botão entrar-->
+        <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white hover:bg-opacity-90" [disabled]="loginForm.invalid">
+          <ion-icon name="log-in" slot="start"></ion-icon>
+          Entrar
+        </ion-button>
+
+
+    </form>
+        
+        <!--Link para Cadastro-->
+
+        <div class="mt-auto text-center text-texto-suave pb-4 pt-6 md:pt-10">
+          Não tem uma conta? <a class="text-azul-sereno font-bold cursor-pointer hover:underline" (click)="goToRegister()">Cadastre-se</a>
+        </div>
+
+
+        <!--Separador "ou"-->
+        <div class="my-6 text-center text-texto-suave relative">
+          <span class="bg-fundo-neutro px-2 z-10 relative text-sm">ou</span>
+          <div class="absolute left-0 right-0 top-1/2 h-px bg-linha-sutil -z-0"></div>
+        </div>
+
+
+
+
+        <!--Botão de login social-->
+        <div class="space-y-4">
+          <ion-button expand="block" fill="outline" shape="round" class="h-12 text-sm normal-case [--border-color:theme(colors.linha-sutil)] text-texto-profundo hover:bg-gray-100" (click)="loginWithGoogle()">
+            <ion-icon name="logo-google" slot="start" class="text-red-500 text-lg"></ion-icon>
+            Continuar com Google
+          </ion-button>
+        </div>
+
+
+  </div>
 </ion-content>
