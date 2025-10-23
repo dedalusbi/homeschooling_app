@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth-guard';
 
 export const routes: Routes = [
   
@@ -38,7 +39,7 @@ export const routes: Routes = [
   {
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.routes').then(m => m.routes),
-    //!! Adicionar um canActivate guard aqui depois para proteger essa rota!!
+    canActivate: [authGuard] //qualquer tentativa de ir para /tabs/... passará pelo guard.
   },
 
   //Rota de fallback
