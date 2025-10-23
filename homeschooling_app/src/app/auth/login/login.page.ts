@@ -69,7 +69,6 @@ export class LoginPage implements OnInit {
         await loading.dismiss();
         console.log('Token recebido:', res.token);
 
-        // !! IMPORTANTE Implementar armazenamento seguro do Token JWT aqui !!
         this.navCtrl.navigateRoot('/tabs/tab1');
       },
       error: async (err) => {
