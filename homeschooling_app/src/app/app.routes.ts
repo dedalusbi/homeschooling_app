@@ -25,6 +25,14 @@ export const routes: Routes = [
         path: 'login', //Rota completa: /auth/login
         loadComponent: () => import('./auth/login/login.page').then(m => m.LoginPage),
       },
+      {
+        path: 'forgot-password', //Rota completa: /auth/forgot-password
+        loadComponent: () => import('./auth/forgot-password/forgot-password.page').then(m => m.ForgotPasswordPage),
+      },
+      {
+        path: 'reset-password', //Rota completa: /auth/reset-password
+        loadComponent: () => import('./auth/reset-password/reset-password.page').then(m => m.ResetPasswordPage),
+      },
       { //Redireciona /auth para /auth/welcome se alguém digitar só /auth
         path: '',
         redirectTo: 'welcome',
@@ -46,8 +54,7 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'auth/welcome'
-  }
-
+  },
 
 
 ];

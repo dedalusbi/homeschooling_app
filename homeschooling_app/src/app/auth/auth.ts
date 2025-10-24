@@ -16,7 +16,7 @@ const AUTH_TOKEN_KEY = 'authToken';
 export class Auth {
 
   //URL da API definida nos arquivos environment
-  private apiUrl = environment.apiUrl
+  private apiUrl = environment.apiUrl;
   private storageInitialized = false; //Flag para controlar inicialização
 
   private authState = new BehaviorSubject<boolean>(false); //inicia como não logado

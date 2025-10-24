@@ -42,7 +42,7 @@
 
         <!--Esqueci Senha-->
         <div class="text-right -mt-2 mb-4">
-          <a href="#" class="text-sm text-azul-sereno no-underline hover:underline">Esqueci minha senha</a>
+          <a class="text-sm text-azul-sereno no-underline hover:underline cursor-pointer" (click)="goToForgotPassword()">Esqueci minha senha</a>
         </div>
 
         <!--Botão entrar-->
@@ -58,24 +58,6 @@
 
         <div class="mt-auto text-center text-texto-suave pb-4 pt-6 md:pt-10">
           Não tem uma conta? <a class="text-azul-sereno font-bold cursor-pointer hover:underline" (click)="goToRegister()">Cadastre-se</a>
-        </div>
-
-
-        <!--Separador "ou"-->
-        <div class="my-6 text-center text-texto-suave relative">
-          <span class="bg-fundo-neutro px-2 z-10 relative text-sm">ou</span>
-          <div class="absolute left-0 right-0 top-1/2 h-px bg-linha-sutil -z-0"></div>
-        </div>
-
-
-
-
-        <!--Botão de login social-->
-        <div class="space-y-4">
-          <ion-button expand="block" fill="outline" shape="round" class="h-12 text-sm normal-case [--border-color:theme(colors.linha-sutil)] text-texto-profundo hover:bg-gray-100" (click)="loginWithGoogle()">
-            <ion-icon name="logo-google" slot="start" class="text-red-500 text-lg"></ion-icon>
-            Continuar com Google
-          </ion-button>
         </div>
 
 

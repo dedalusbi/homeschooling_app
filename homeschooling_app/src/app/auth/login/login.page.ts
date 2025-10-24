@@ -33,7 +33,6 @@ export class LoginPage implements OnInit {
           'mail': mail,
           'eye-off': eyeOff,
           'eye': eye,
-          'logo-google': logoGoogle,
           'log-in': logIn
     
         });
@@ -83,8 +82,10 @@ export class LoginPage implements OnInit {
     this.navCtrl.navigateForward('/auth/register');
   }
 
-  //Placeholders para login social
-  loginWithGoogle() {console.log('Login com Google (a implementar');}
+  goToForgotPassword() {
+    this.navCtrl.navigateForward('/auth/forgot-password');
+  }
+
 
   async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({header, message, buttons: ['OK']});

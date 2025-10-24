@@ -583,34 +583,6 @@ video {
   visibility: collapse;
 }
 
-.absolute {
-  position: absolute;
-}
-
-.relative {
-  position: relative;
-}
-
-.left-0 {
-  left: 0px;
-}
-
-.right-0 {
-  right: 0px;
-}
-
-.top-1\/2 {
-  top: 50%;
-}
-
-.-z-0 {
-  z-index: 0;
-}
-
-.z-10 {
-  z-index: 10;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -619,11 +591,6 @@ video {
 .my-5 {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-}
-
-.my-6 {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .my-8 {
@@ -735,10 +702,6 @@ video {
   height: 100%;
 }
 
-.h-px {
-  height: 1px;
-}
-
 .w-16 {
   width: 4rem;
 }
@@ -819,16 +782,6 @@ video {
 .bg-azul-sereno {
   --tw-bg-opacity: 1;
   background-color: rgb(58 90 146 / var(--tw-bg-opacity, 1));
-}
-
-.bg-fundo-neutro {
-  --tw-bg-opacity: 1;
-  background-color: rgb(247 249 252 / var(--tw-bg-opacity, 1));
-}
-
-.bg-linha-sutil {
-  --tw-bg-opacity: 1;
-  background-color: rgb(224 230 237 / var(--tw-bg-opacity, 1));
 }
 
 .bg-texto-profundo {
@@ -951,11 +904,6 @@ video {
   color: rgb(58 90 146 / var(--tw-text-opacity, 1));
 }
 
-.text-red-500 {
-  --tw-text-opacity: 1;
-  color: rgb(239 68 68 / var(--tw-text-opacity, 1));
-}
-
 .text-texto-profundo {
   --tw-text-opacity: 1;
   color: rgb(44 62 80 / var(--tw-text-opacity, 1));
@@ -1013,10 +961,6 @@ video {
   --border-color: #3A5A92;
 }
 
-.\[--border-color\:theme\(colors\.linha-sutil\)\] {
-  --border-color: #E0E6ED;
-}
-
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -1051,11 +995,6 @@ ion-button[shape="round"] {
 
 .hover\:bg-azul-sereno\/10:hover {
   background-color: rgb(58 90 146 / 0.1);
-}
-
-.hover\:bg-gray-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-opacity-90:hover {
