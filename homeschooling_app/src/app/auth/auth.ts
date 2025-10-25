@@ -123,4 +123,16 @@ export class Auth {
   isLoggedIn(): boolean {
     return this.authState.getValue();
   }
+
+  //Solicita um link de recuperação de senha para o email fornecido
+  requestPasswordReset(email: string) {
+    return this.http.post<{message: string}>(`${this.apiUrl}/users/request_password_reset`, {email});
+  }
+
+  //Envia o token de reset e a nova senha para o backend
+  resetPassword(token:string, password: string, confirm_password: string) {
+    const payload = {token, password, confirm_password};
+    return this.http.post<{message: string}>(`${this.apiUrl}/users/reset_password`, payload);
+  }
+
 }
