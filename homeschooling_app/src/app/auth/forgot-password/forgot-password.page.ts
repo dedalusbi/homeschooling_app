@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonLabel, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { headset, helpCircle, keyOutline, mail, send } from 'ionicons/icons';
+import { headset, helpCircle, key, mail, send } from 'ionicons/icons';
 import { Auth } from '../auth';
 
 @Component({
@@ -11,7 +11,7 @@ import { Auth } from '../auth';
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonButtons,
+  imports: [ReactiveFormsModule, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonButtons,
     IonBackButton, IonIcon, IonLabel, IonInput, IonButton]
 })
 export class ForgotPasswordPage implements OnInit {
@@ -28,7 +28,7 @@ export class ForgotPasswordPage implements OnInit {
     private navCtrl: NavController
   ) {
     addIcons({
-              'key-outline': keyOutline,
+              'key': key,
               'mail': mail,
               'send': send,
               'help-circle': helpCircle,
