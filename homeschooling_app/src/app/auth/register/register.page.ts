@@ -79,7 +79,7 @@ export class RegisterPage implements OnInit {
     this.authService.register(fullName, email, password).subscribe({
       next: async (res) => {
         await loading.dismiss();
-        await this.presentAlert('Sucesso!', 'Conta criada com sucesso. Faça o login.');
+        await this.presentAlert('Conta criada!', 'Enviamos um email de verificação. Por favor, clique no link do email para ativar sua conta antes de fazer login.');
         this.navCtrl.navigateRoot('/auth/login');
       },
       error: async (err) => {

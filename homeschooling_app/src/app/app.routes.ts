@@ -33,6 +33,10 @@ export const routes: Routes = [
         path: 'reset-password', //Rota completa: /auth/reset-password
         loadComponent: () => import('./auth/reset-password/reset-password.page').then(m => m.ResetPasswordPage),
       },
+      {
+        path: 'verify-email',
+        loadComponent: () => import('./auth/verify-email/verify-email.page').then(m => m.VerifyEmailPage),
+      },
       { //Redireciona /auth para /auth/welcome se alguém digitar só /auth
         path: '',
         redirectTo: 'welcome',

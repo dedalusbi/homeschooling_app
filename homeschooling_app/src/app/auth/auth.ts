@@ -135,4 +135,13 @@ export class Auth {
     return this.http.post<{message: string}>(`${this.apiUrl}/users/reset_password`, payload);
   }
 
+  resendVerificationLink(email: string) {
+    return this.http.post<{message: string}>(`${this.apiUrl}/users/resend_verification`, { email });
+  }
+
+  verifyEmail(token: string) {
+    // Assumindo endpoint POST /api/users/verify com { token: "..." }
+    return this.http.post<{message: string}>(`${this.apiUrl}/users/verify`, { token });
+  }
+
 }

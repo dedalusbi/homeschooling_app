@@ -72,11 +72,62 @@ export class LoginPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        await this.presentAlert('Erro', 'Email ou senha inválidos.');
+
+        let alertOptions: any = {
+          header: 'Erro',
+          message: 'Ocorreu um erro ao tentar fazer login.',
+          buttons: ['OK']
+        };
+
+        if (err.status === 403 && err.error?.error?.message?.includes("Email não verificado")) {
+          alertOptions.header = 'Email não verificado';
+          alertOptions.message = 'Sua conta ainda não foi ativada. Verifique seu email (incluindo a caixa de spam) e clique no link de verificação.'
+          alertOptions.buttons=[
+            'OK',
+            {
+              text: 'Reenviar email',
+              handler: () => {
+                this.resendVerification(email);
+              }
+            }
+          ];
+        } else if (err.status === 401) {
+          alertOptions.message = 'Email ou senha inválidos';
+        }
+
+        const alert = await this.alertCtrl.create(alertOptions);
+        await alert.present();
+       
       }
     });
 
   }
+
+
+  //Nova função para reenviar o email
+  async resendVerification(email: string) {
+    if (!email) {
+      await this.presentAlert('Erro', 'Email não fornecido para reenvio.')
+      return;
+    }
+
+    const loading = await this.loadingCtrl.create({message: 'Reenviando email de verificação...'});
+    await loading.present();
+
+    //Chama o novo método no AuthService
+    this.authService.resendVerificationLink(email).subscribe({
+      next: async (res: any) => {
+        await loading.dismiss();
+        await this.presentAlert('Verifique seu email', res.message || 'Solicitação de reenvio processada. Verifique sua caixa de entrada.');
+      },
+      error: async (err: any) => {
+        await loading.dismiss();
+        console.error("Erro ao reenviar verificação:", err);
+        await this.presentAlert('Erro', err.error?.error || 'Não foi possível reenviar o email de verificação. Tente novamente mais tarde.');
+      }
+    });
+  }
+
 
   goToRegister() {
     this.navCtrl.navigateForward('/auth/register');

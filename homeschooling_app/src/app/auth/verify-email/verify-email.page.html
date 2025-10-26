@@ -1,0 +1,41 @@
+<!-- src/app/auth/verify-email/verify-email.page.html -->
+<ion-content class="ion-padding [--background:theme(colors.fundo-neutro)] flex items-center justify-center">
+  <div class="text-center max-w-sm mx-auto">
+    <ion-spinner *ngIf="isLoading" name="crescent" color="primary" class="scale-150"></ion-spinner>
+
+    <!-- Estado de Sucesso (Não muda) -->
+    <div *ngIf="!isLoading && verificationStatus === 'success'">
+      <ion-icon name="checkmark-circle" color="success" class="text-6xl mb-4"></ion-icon>
+      <h1 class="text-2xl font-bold text-texto-profundo mb-2">Email Verificado!</h1>
+      <p class="text-texto-suave mb-6">Sua conta foi ativada com sucesso.</p>
+      <ion-button (click)="goToLogin()" shape="round" class="[--background:theme(colors.azul-sereno)] text-white">Ir para Login</ion-button>
+    </div>
+
+    <!-- Estado de Erro (Modificado) -->
+    <div *ngIf="!isLoading && verificationStatus === 'error'">
+      <ion-icon name="close-circle" color="danger" class="text-6xl mb-4"></ion-icon>
+      <h1 class="text-2xl font-bold text-texto-profundo mb-2">Erro na Verificação</h1>
+      <p class="text-texto-suave mb-6">{{ errorMessage }}</p>
+
+      <!-- Formulário para Reenvio -->
+      <div class="mt-8 space-y-4">
+         <p class="text-sm text-texto-suave">Para tentar novamente, insira seu email e clique em reenviar:</p>
+         <!-- Usaremos ngModel simples aqui para o email -->
+         <div class="bg-white rounded-lg p-3 shadow-sm text-left">
+             <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Seu Email</ion-label>
+             <div class="flex items-center">
+               <ion-input type="email" placeholder="Digite seu email cadastrado" [(ngModel)]="emailForResend" class="flex-grow text-base"></ion-input>
+               <ion-icon name="mail" class="text-texto-suave text-xl ml-2"></ion-icon>
+             </div>
+          </div>
+
+         <ion-button (click)="resendVerification()" shape="round" fill="outline" class="[--background:theme(colors.azul-sereno)] text-azul-sereno w-full" [disabled]="!emailForResend">
+             <ion-icon name="send-outline" slot="start"></ion-icon>
+             Reenviar Email de Verificação
+         </ion-button>
+      </div>
+
+      <ion-button (click)="goToLogin()" shape="round" fill="clear" class="text-texto-suave mt-6 text-sm">Voltar para Login</ion-button>
+    </div>
+  </div>
+</ion-content>
