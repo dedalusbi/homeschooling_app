@@ -54,11 +54,25 @@ export const routes: Routes = [
     canActivate: [authGuard] //qualquer tentativa de ir para /tabs/... passará pelo guard.
   },
 
+  {
+    path: 'student-form',
+    loadComponent: () => import('./students/student-form/student-form.page').then( m => m.StudentFormPage),
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'student-form/:id',
+    loadComponent: () => import('./students/student-form/student-form.page').then( m => m.StudentFormPage),
+    canActivate: [authGuard]
+  },
+
+
   //Rota de fallback
   {
     path: '**',
     redirectTo: 'auth/welcome'
   },
+  
 
 
 ];

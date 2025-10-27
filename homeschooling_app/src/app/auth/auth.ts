@@ -17,25 +17,49 @@ export class Auth {
 
   //URL da API definida nos arquivos environment
   private apiUrl = environment.apiUrl;
-  private storageInitialized = false; //Flag para controlar inicialização
-
+  private _storage: Storage | null = null;
   private authState = new BehaviorSubject<boolean>(false); //inicia como não logado
   $isAuthenticated = this.authState.asObservable();
 
+  private initialCheckDone = new BehaviorSubject<boolean>(false);
+  $initialCheckDone = this.initialCheckDone.asObservable();
+
   constructor(private http: HttpClient, private storage: Storage, private navCtrl: NavController) {
-    this.initStorage();
+    this.initializeAuth();
+  }
+
+
+  private async initializeAuth(): Promise<void> {
+    await this.initStorage(); //Espera o storage iniciar
+    await this.checkInitialAuthState(); //ESPERA a verificação inicial terminar
+    this.initialCheckDone.next(true);
+    console.log('Auth Service: Inicialização completa.');
   }
 
   //Função para inicializar o Storage
-  async initStorage() {
-    //O Storage precisa ser criado antes de ser usado
-    await this.storage.create();
-    this.storageInitialized = true;
-    console.log("Ionic Storage inicializado.");
-    //Após iniciar, verificamos o estado inicial de autenticação
-    this.checkInitialAuthState();
+  private async initStorage(): Promise<void> {
+    if (this._storage) {return;}
+    try {
+      const storage = await this.storage.create();
+      this._storage = storage;
+      console.log("Ionic storage inicializado");
+    } catch (error) {
+      console.error("erro ao inicializar Ionic Storage: ", error);
+    }
+    
   }
 
+
+  //Garante que temos a instância do storage pronta
+  private async getStorage(): Promise<Storage> {
+    if (!this._storage){
+      await this.initStorage();
+    }
+    if (!this._storage) {
+      throw new Error("Storage não pode ser inicializado.");
+    }
+    return this._storage;
+  }
 
   register(fullName: string, email: string, password: string) {
     const userData = {
@@ -65,6 +89,7 @@ export class Auth {
           this.updateAuthState(true);
         } else {
           //Caso a API retorne sucesso mas sem token (improvável)
+          console.error('Resposta de login inválida:', response);
           this.updateAuthState(false);
         }
       })
@@ -74,17 +99,17 @@ export class Auth {
 
   //Método para armazenar o token
   async storeToken(token: string): Promise<void> {
-    if (!this.storageInitialized) await this.initStorage(); //Garante que o storage esteja inicializado
+    const storage = await this.getStorage();
     //storage.set retorna uma promise
-    await this.storage.set(AUTH_TOKEN_KEY, token);
+    await storage.set(AUTH_TOKEN_KEY, token);
     console.log('Token armazenado: ', token);
   }
 
   //Método para recuperar o token
   async getToken(): Promise<string | null> {
-    if (!this.storageInitialized) await this.initStorage(); //Garante que o storage esteja inicializado
+    const storage = await this.getStorage();
     //storage.get retorna uma Promise com o valor ou null
-    const token = await this.storage.get(AUTH_TOKEN_KEY);
+    const token = await storage.get(AUTH_TOKEN_KEY);
     console.log('Token recuperado: ', token);
     return token;
   }
@@ -96,20 +121,18 @@ export class Auth {
   }
 
   //verifica se existe um token no storage quando o serviço inicia
-  async checkInitialAuthState() {
-    if (!this.storageInitialized) {
-      //Se o storage não estiver pronto, aguarda um pouco e tenta de novo
-      //Isso evita condições de corrida durante o boot inicial
-      setTimeout(() => this.checkInitialAuthState(), 100);
-      return;
-    }
+  async checkInitialAuthState(): Promise<void> {
     const token = await this.getToken();
+    console.log('checkInitialAuthState - Token recuperado: ', token);
     //Se encontrou um token, atualiza o estado para 'logado'
     this.updateAuthState(!!token); //!! converte null/undefined para false, string para true
+    console.log(`checkInitialAuthState - Estado atualizado para: ${!!token}`);
   }
 
   async logout(): Promise<void> {
-    if (!this.storageInitialized) await this.initStorage();
+
+    const storage = await this.getStorage();
+    
     //Remove o token do Ionic Storage
     await this.storage.remove(AUTH_TOKEN_KEY);
     //Atualiza o estado de autenticação para não logado
