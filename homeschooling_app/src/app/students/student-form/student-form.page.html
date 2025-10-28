@@ -1,13 +1,120 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>student-form</ion-title>
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="bg-fundo-neutro">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/alunos" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="text-texto-profundo text-center">{{ pageTitle }}</ion-title>
+    <ion-buttons slot="end" style="opacity: 0;">
+       <ion-back-button></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">student-form</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div class="p-6 text-texto-profundo md:max-w-md md:mx-auto md:pt-12">
+
+    <div class="flex justify-center mb-6">
+      <div class="relative w-24 h-24">
+        <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+          <ion-icon name="person" class="text-4xl"></ion-icon>
+          </div>
+        <button type="button" (click)="changeStudentPhoto()" class="absolute bottom-0 right-0 bg-azul-sereno text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md border-2 border-white">
+          <ion-icon name="camera" class="text-lg"></ion-icon> </button>
+      </div>
+    </div>
+
+
+    <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nome do Aluno *</ion-label>
+        <div class="flex items-center">
+          <ion-input type="text" placeholder="Digite o nome completo" formControlName="name" class="flex-grow text-base"></ion-input>
+        </div>
+        <div *ngIf="f['name'].invalid && f['name'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+          Nome é obrigatório.
+        </div>
+      </div>
+
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Data de Nascimento</ion-label>
+        <div class="flex items-center">
+           <ion-datetime-button datetime="birthdatePicker" class="flex-grow"></ion-datetime-button>
+           <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                 <ion-datetime id="birthdatePicker"
+                               presentation="date"
+                               formControlName="birth_date"
+                               showDefaultButtons="true"
+                               doneText="Confirmar"
+                               cancelText="Cancelar"
+                               max="2030-12-31">
+                               </ion-datetime>
+              </ng-template>
+           </ion-modal>
+
+           <span *ngIf="f['birth_date'].value" class="text-base text-texto-profundo ml-2 whitespace-nowrap">
+              {{ f['birth_date'].value | date:'dd/MM/yyyy' }}
+           </span>
+           <span *ngIf="!f['birth_date'].value" class="text-base text-texto-suave ml-2 whitespace-nowrap">dd/mm/aaaa</span>
+           <ion-icon name="calendar" class="text-texto-suave text-xl ml-auto pl-2"></ion-icon>
+        </div>
+      </div>
+
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Série Escolar</ion-label>
+        <div class="flex items-center">
+          <ion-input type="text" placeholder="Ex: 3º Ano Fundamental" formControlName="grade_level" class="flex-grow text-base"></ion-input>
+        </div>
+      </div>
+      <div class="mb-5">
+        <div class="flex justify-between items-center mb-2">
+          <ion-label class="text-texto-profundo font-medium">Individualidades</ion-label>
+          <ion-button fill="clear" size="small" (click)="addIndividualidade()" class="text-verde-crescimento">
+            <ion-icon slot="icon-only" name="add-circle" class="text-2xl"></ion-icon>
+          </ion-button>
+        </div>
+        <div formArrayName="individualities" class="space-y-3">
+          <div *ngFor="let item of individualitiesFormArray.controls; let i = index"
+               [formGroupName]="i"
+               class="flex items-center space-x-2 bg-white rounded-lg p-3 shadow-sm">
+            <div class="flex-1">
+              <ion-label position="stacked" class="text-xs text-texto-suave mb-1">Característica</ion-label>
+              <ion-select placeholder="Selecione" formControlName="type" interface="popover" class="text-sm">
+                <ion-select-option *ngFor="let carac of caracteristicaOptions" [value]="carac">
+                  {{ carac }}
+                </ion-select-option>
+              </ion-select>
+            </div>
+            <div class="flex-1">
+              <ion-label position="stacked" class="text-xs text-texto-suave mb-1">Descrição</ion-label>
+              <ion-select placeholder="Selecione" formControlName="description" interface="popover" class="text-sm"
+                          [disabled]="!item.get('type')?.value">
+                <ng-container *ngFor="let categoria of getDescricaoOptions(i)">
+                  <ion-select-option [disabled]="true" class="font-semibold text-texto-suave bg-gray-50 py-1 -mx-2 text-xs uppercase tracking-wider">
+                    {{ categoria.category }}
+                  </ion-select-option>
+                  <ion-select-option *ngFor="let desc of categoria.options" [value]="desc" class="pl-4 text-sm">
+                    {{ desc }}
+                  </ion-select-option>
+                </ng-container>
+              </ion-select>
+            </div>
+            <ion-button fill="clear" color="danger" size="small" (click)="removeIndividualidade(i)" class="self-end mb-1">
+              <ion-icon slot="icon-only" name="remove-circle" class="text-lg"></ion-icon>
+            </ion-button>
+          </div>
+           <p *ngIf="individualitiesFormArray.controls.length === 0" class="text-xs text-texto-suave text-center italic mt-2">
+              Nenhuma característica adicionada. Clique no '+' acima.
+           </p>
+        </div>
+      </div>
+
+      <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white hover:bg-opacity-90 mt-8" [disabled]="studentForm.invalid">
+        <ion-icon name="save" slot="start"></ion-icon>
+        Salvar Aluno
+      </ion-button>
+
+    </form>
+  </div>
 </ion-content>
