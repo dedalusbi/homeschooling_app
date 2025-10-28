@@ -68,7 +68,7 @@ export class LoginPage implements OnInit {
         await loading.dismiss();
         console.log('Token recebido:', res.token);
 
-        this.navCtrl.navigateRoot('/tabs/tab1');
+        this.navCtrl.navigateRoot('/tabs/alunos');
       },
       error: async (err) => {
         await loading.dismiss();

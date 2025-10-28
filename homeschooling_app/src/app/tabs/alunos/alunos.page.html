@@ -1,0 +1,79 @@
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-title class="text-texto-profundo font-bold">Alunos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div class="p-4">
+
+
+    <!--Lista de alunos-->
+    <div *ngIf="students$ | async as students; else loadingOrEmpty">
+      <div *ngIf="students.length > 0; else noStudents" class="space-y-3">
+        
+        <ion-card *ngFor="let student of students" button="true" (click)="goToStudentDetails(student.id)" class="m-0 rounded-xl shadow-sm [--background:theme(colors.white)]">
+          <ion-card-content class="flex items-center space-x-3 p-3">
+            <!--Foto e status-->
+            <div class="relative w-12 h-12">
+              <img [src]="'assets/placeholder-avatar.png'" alt="Foto do aluno" class="rounded-full w-full h-full object-cover">
+            </div>
+            <!--Nome e idade-->
+            <div class="flex-grow">
+              <h2 class="font-semibold text-texto-profundo">{{student.name}}</h2>
+              <p class="text-xs text-texto-suave">{{calculateAge(student.birth_date)}} anos</p>
+            </div>
+            <!--Atividades Hoje e Seta-->
+            <div class="text-right">
+              <p class="text-xs text-texto-suave mb-1">Atividades hoje</p>
+              <!--Placeholder para contagem de atividades-->
+              <p class="font-semibold text-texto-profundo">3/5</p>
+            </div>
+            <ion-icon name="chevron-forward" class="text-texto-suave text-lg ml-1"></ion-icon>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!--Templates para loading e lista vazia-->
+    <ng-template #loadingOrEmpty>
+      <div *ngIf="isLoading" class="text-center py-10">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p class="text-text-suave mt-2">Carregando alunos...</p>
+      </div>
+      <div *ngIf="!isLoading && students$.value?.length === 0"> <!--Verificar o valor do Behaviour Subject-->
+        <ng-container *ngTemplateOutlet="noStudents"></ng-container>
+      </div>
+    </ng-template>
+
+    <ng-template #noStudents>
+      <div class="text-center py-10 px-6 bg-white rounded-xl shadow-sm">
+        <ion-icon name="people" class="text-4xl text-text-suave mb-3"></ion-icon>
+        <h3 class="font-semibold text-texto-profundo mb-1">Nenhum aluno adicionado.</h3>
+        <p class="text-sm text-texto-suave ">Comece adicionando o perfil do seu primeiro aluno.</p>
+      </div>
+    </ng-template>
+
+    <!--Botão Adicionar aluno-->
+    <ion-button expand="block" shape="round" class="shadow-md mt-6 h-12 text-base normal-case meu-botao-gradiente text-white" (click)="goToAddStudent()">
+      <ion-icon name="add"></ion-icon>
+      Adicionar Aluno
+    </ion-button>
+
+    <!--Cards de sumário-->
+    <div class="grid grid-cols-2 gap-4 mt-6">
+      <ion-card class="m-0 rounded-xl shadow-sm bg-white text-center p-4">
+        <ion-icon name="school" class="text-3xl text-verde-crescimento mb-2"></ion-icon>
+        <h3 class="text-2xl font-bold text-texto-profundo">{{(students$ | async)?.length || 0}}</h3>
+        <p class="text-xs text-texto-suave">Alunos Ativos</p>
+
+      </ion-card>
+      <ion-card class="m-0 rounded-xl shadow-sm bg-white text-center p-4">
+        <ion-icon name="trending-up" class="text-3xl text-amarelo-foco mb-2"></ion-icon>
+        <h3 class="text-2xl font-bold text-texto-profundo">78%</h3>
+        <p class="text-xs text-texto-suave">Progresso Médio</p>
+
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

@@ -32,4 +32,10 @@ export class Student {
     return this.http.post<{data: Student}>(`${this.apiUrl}/students`, {student: studentData});
   }
 
+  // Busca a lista de alunos do usuário logado
+  getStudents(): Observable<{data: Student[]}> {
+    return this.http.get<{data: Student[]}>(`${this.apiUrl}/students`);
+  }
+
+
 }
