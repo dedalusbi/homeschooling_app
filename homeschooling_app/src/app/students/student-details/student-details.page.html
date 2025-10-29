@@ -1,0 +1,92 @@
+<ion-header mode="ios" class="[--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/alunos" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="text-texto-profundo text-center">{{(student$ | async)?.data?.name || 'Detalhes' }}  </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveChanges()" class="[--color:theme(colors.azul-sereno)] font-medium normal-case">Salvar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <!--Exibe apenas quando os dados do aluno forem carregados-->
+  <div *ngIf="(student$ | async)?.data as student; else loadingDetails" class="p-6 text-texto-profundo md:max-w-md md:mx-auto md:pt-12">
+
+    <!--Foto do aluno-->
+    <div class="flex justify-center mb-6">
+      <div class="relative w-24 h-24">
+        <div class="w-full h-full rounded-full bg-gray-200 border-2 border-verde-crescimento flex items-center justify-center text-gray-400 overflow-hidden">
+          <ion-icon name="person" class="text-4xl "></ion-icon>
+        </div>
+        <button type="button" (click)="changeStudentPhoto(student.id)" class="absolute bottom-0 right-0 bg-azul-sereno text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md border-2 border-white">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+
+    <!--Formulário-->
+    <div class="space-y-5">
+      <!--Nome Completo-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nome Completo</ion-label>
+        <p class="text-base py-1 px-1">{{student.name}}</p>
+        <!--ion-input-->
+      </div>
+
+      <!--Data de nascimento-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Data de Nascimento</ion-label>
+        <div class="flex items-center">
+          <p class="text-base py-1 px-1 flex-grow">{{student.birth_date ? (student.birth_date | date:'dd/MM/yyyy' : '' : 'pt-BR') : 'Não informado'}}</p>
+          <!--ion-datetime futuramente-->
+          <ion-icon name="calendar" class="text-texto-suave text-xl ml-auto pl-2"></ion-icon>
+        </div>
+      </div>
+
+      <!--Nível escolar-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nível escolar</ion-label>
+        <p class="text-base py-1 px-1">{{student.grade_level || 'Não informado'}}</p>
+        <!--ion-input...-->
+
+      </div>
+
+
+    </div>
+
+
+    <!--Seção Responsáveis (placeholder)-->
+    <div class="mt-8">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold text-texto-profundo">Responsáveis</h2>
+        <span class="text-xs text-texto-suave bg-gray-100 px-2 py-0.5 rounded-full">1/1</span>
+      </div>
+      <!--Lista de responsáveis (placeholder)-->
+      <ion-card class="m-0 rounded-xl shadow-sm bg-white">
+        <ion-card-content class="flex items-center space-x-3 p-3">
+          <img src="assets/placeholder-avatar.png" class="border-2 border-verde-crescimento w-10 h-10 rounded-full object-cover">
+          <div class="flex-grow">
+            <h3 class="font-medium text-texto-profundo">Seu Nome Aqui</h3>
+            <p class="text-xs text-texto-suave">Você</p>
+          </div>
+          <ion-chip color="sucess" class="text-xs h-5 px-2">Principal</ion-chip>
+        </ion-card-content>
+      </ion-card>
+      <!--Botão convidar (placeholder)-->
+      <ion-button expand="block" shape="round" class="meu-botao-gradiente h-12 text-base normal-case text-white mt-4 shadow-md" (click)="inviteGuardian()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Convidar Responsável
+      </ion-button>
+    </div>
+  </div>
+
+
+  <ng-template #loadingDetails>
+    <div class="flex justify-center items-center h-dull">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  </ng-template>
+</ion-content>

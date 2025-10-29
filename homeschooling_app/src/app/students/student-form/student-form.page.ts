@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonLabel, IonModal, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
-import { Student } from '../student';
+import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { group } from '@angular/animations';
 import { addIcons } from 'ionicons';
@@ -144,7 +144,7 @@ export class StudentFormPage implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private studentService: Student,
+    private studentService: StudentService,
     private navCtrl: NavController,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,

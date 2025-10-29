@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonContent, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
-import { Student } from 'src/app/students/student';
+import { Student } from 'src/app/models/student.model';
 import { addIcons } from 'ionicons';
 import { BehaviorSubject } from 'rxjs';
 import { add, checkmark, chevronForward, filter, people, school, trendingUp } from 'ionicons/icons';
+import { StudentService } from 'src/app/students/student.service';
 
 @Component({
   selector: 'app-alunos',
@@ -21,7 +22,7 @@ export class AlunosPage implements OnInit {
   students$ = new BehaviorSubject<Student[] | null>(null);
   isLoading = true;
 
-  constructor(private studentService: Student, private navCtrl: NavController) {
+  constructor(private studentService: StudentService, private navCtrl: NavController) {
 
     addIcons({
       'filter': filter,
@@ -85,12 +86,12 @@ export class AlunosPage implements OnInit {
 
 
   goToAddStudent() {
-    this.navCtrl.navigateForward('/student-form');
+    this.navCtrl.navigateForward('/tabs/alunos/student-form');
   }
 
   goToStudentDetails(studentId?:string) {
     if (!studentId) return;
-    this.navCtrl.navigateForward(`/student-details/${studentId}`);
+    this.navCtrl.navigateForward(`/tabs/alunos/student-details/${studentId}`);
   }
 
 }
