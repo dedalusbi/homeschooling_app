@@ -1,0 +1,27 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-title class="text-texto-profundo">Selecione a descrição</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()">Cancelar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:theme(colors.fundo-neutro)]">
+  <ion-list lines="none">
+    <ion-item-group *ngFor="let categoria of options">
+      <ion-item-divider class="bg-gray-100 sticky top-0 z-10">
+        <ion-label class="text-xs uppercase font-medium text-texto-suave tracking-wider">{{categoria.category}}</ion-label>
+      </ion-item-divider>
+      <ion-item *ngFor="let desc of categoria.options" button detail="false" 
+      (click)="selectOption(desc)">
+        <ion-label class="text-texto-profundo">{{desc}}</ion-label>
+        <ion-icon *ngIf="desc === selectedValue" name="checkmark" slot="end" color="primary"></ion-icon>
+      </ion-item>
+    </ion-item-group>
+    <ion-item *ngIf="!options || options.length === 0">
+      <ion-label class="text-texto-suave italic text-center">Nenhuma opção disponível.</ion-label>
+    </ion-item>
+
+  </ion-list>
+</ion-content>

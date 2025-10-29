@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonLabel, IonModal, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { group } from '@angular/animations';
 import { addIcons } from 'ionicons';
-import { addCircle, calendar, camera, person, removeCircle, save } from 'ionicons/icons';
+import { addCircle, calendar, camera, caretDown, person, removeCircle, save } from 'ionicons/icons';
+import { IndividualidadeDescricaoModalComponent } from '../components/individualidade-descricao-modal/individualidade-descricao-modal.component';
 
 //interface para a nova estrutura das opções da descrição
 interface DescricaoCategoria {
@@ -22,7 +23,7 @@ interface DescricaoCategoria {
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,
     ReactiveFormsModule, IonButtons, IonBackButton, IonIcon, IonLabel, IonInput,
     IonDatetimeButton, IonModal, IonDatetime, IonButton, IonSelect, IonSelectOption,
-    IonSpinner
+    IonSpinner, IonItem
   ]
 })
 export class StudentFormPage implements OnInit {
@@ -151,7 +152,8 @@ export class StudentFormPage implements OnInit {
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private modalCtrl: ModalController
   ) {
 
     addIcons({
@@ -160,7 +162,8 @@ export class StudentFormPage implements OnInit {
       'add-circle': addCircle,
       'person': person,
       'remove-circle': removeCircle,
-      'save': save
+      'save': save,
+      'caret-down': caretDown
     });
     this.studentForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -340,8 +343,41 @@ export class StudentFormPage implements OnInit {
     await alert.present();
   }
 
-}
-function getDescricaoOptions(index: any, number: any) {
-  throw new Error('Function not implemented.');
+
+  async openDescricaoModal(index: number) {
+
+    //obtém o Formgroup específico para esta linha no formArray
+    const individualidadeGroup = this.individualitiesFormArray.at(index) as FormGroup;
+    if (!individualidadeGroup) return; //segurança
+
+    const optionsParaModal = this.getDescricaoOptions(index);
+    const valorAtual = individualidadeGroup.get('description')?.value;
+
+    //Cria e apresenta o modal
+    const modal = await this.modalCtrl.create({
+      component: IndividualidadeDescricaoModalComponent,
+      componentProps: {
+        options: optionsParaModal,
+        selectedValue: valorAtual
+      },
+      breakpoints: [0, 0.5, 0.8],
+      initialBreakpoint: 0.8 
+    });
+
+    await modal.present();
+
+    const {data, role} = await modal.onWillDismiss();
+
+    if (role ==='confirm' && data) {
+      individualidadeGroup.get('description')?.setValue(data);
+      individualidadeGroup.get('description')?.markAllAsDirty();
+      individualidadeGroup.get('description')?.markAsTouched();
+      console.log(`Descrição selecionada para linha ${index}:`, data)
+    } else {
+      console.log(`Modal fechado sem confirmação para linha ${index}.`)
+    }
+
+  }
+
 }
 

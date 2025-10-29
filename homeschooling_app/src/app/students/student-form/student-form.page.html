@@ -88,17 +88,17 @@
             </div>
             <div class="flex-1">
               <ion-label position="stacked" class="text-xs text-texto-suave mb-1">Descrição</ion-label>
-              <ion-select placeholder="Selecione" formControlName="description" interface="popover" class="text-sm"
-                          [disabled]="!item.get('type')?.value">
-                <ng-container *ngFor="let categoria of getDescricaoOptions(i)">
-                  <ion-select-option [disabled]="true" class="font-semibold text-texto-suave bg-gray-50 py-1 -mx-2 text-xs uppercase tracking-wider">
-                    {{ categoria.category }}
-                  </ion-select-option>
-                  <ion-select-option *ngFor="let desc of categoria.options" [value]="desc" class="pl-4 text-sm">
-                    {{ desc }}
-                  </ion-select-option>
-                </ng-container>
-              </ion-select>
+              <ion-item button="true" detail="false" lines="none"
+              class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-9 flex items-center"
+              (click)="openDescricaoModal(i)" [disabled]="!item.get('type')?.value">
+                <ion-label [class.text-texto-suave]="!item.get('description')?.value" class="text-xs" >
+                  {{item.get('description')?.value || 'Selecione'}}
+                </ion-label>
+                <ion-icon name="caret-down" slot="end" class="text-texto-suave text-xs"></ion-icon>
+              </ion-item>
+              <div *ngIf="item.get('description')?.invalid && item.get('description')?.touched" class="text-vermelho-erro text-xs mt-1">
+                Obrigatório.
+              </div>
             </div>
             <ion-button fill="clear" color="danger" size="small" (click)="removeIndividualidade(i)" class="self-end mb-1">
               <ion-icon slot="icon-only" name="remove-circle" class="text-lg"></ion-icon>
