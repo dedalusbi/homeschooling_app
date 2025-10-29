@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonHeader, IonIcon, IonLabel, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonHeader, IonIcon, IonLabel, IonSpinner, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { add, calendar, camera, checkmark, create, createOutline, person } from 'ionicons/icons';
+import { add, calendar, camera, checkmark, create, createOutline, person, trash } from 'ionicons/icons';
 import { Student } from 'src/app/models/student.model';
 
 @Component({
@@ -28,7 +28,9 @@ export class StudentDetailsPage implements OnInit {
     private route: ActivatedRoute,
     private studentService: StudentService,
     private navCtrl: NavController,
-    private location: Location
+    private location: Location,
+    private alertCtrl: AlertController,
+    private loadingCtrl: LoadingController
   ) {
     addIcons({
       'camera': camera,
@@ -37,7 +39,8 @@ export class StudentDetailsPage implements OnInit {
       'add': add,
       'checkmark': checkmark,
       'create': create,
-      'create-outline': createOutline
+      'create-outline': createOutline,
+      'trash': trash
     });
   }
 
@@ -91,4 +94,62 @@ export class StudentDetailsPage implements OnInit {
     this.navCtrl.navigateForward(`/tabs/alunos/student-form/${this.studentId}`);
   }
 
+
+  async confirmDeleteStudent(studentId: string | undefined, studentName: string | undefined) {
+
+    if (!studentId || !studentName) return;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmar Remoção',
+      message: `Tem a certeza que deseja remover permanentemente o perfil de "${studentName}"? Todos os dados associados (planejamentos, registros) serão perdidos.`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Remover',
+          cssClass: 'danger',
+          handler: () => {
+            this.deleteStudent(studentId);
+          }
+        }
+      ]
+    });
+    await alert.present();
+
+  }
+
+
+  async deleteStudent(studentId: string) {
+
+    const loading = await this.loadingCtrl.create({message: 'Removendo aluno...'});
+    await loading.present();
+
+
+    this.studentService.deleteStudent(studentId).subscribe({
+      next: async() => {
+        await loading.dismiss();
+        await this.presentAlert('Aluno removido com sucesso.', 'Mantemos uma cópia de segurança por 60 dias. Para resgatar as informações, contate nosso suporte dentro desse prazo.');
+        this.navCtrl.navigateRoot('/tabs/alunos', {animated: true, animationDirection: 'back'});
+      },
+      error: async(err) => {
+        await loading.dismiss();
+        console.error('Erro ao remover aluno:',err);
+        let errorMessage = 'Não foi possível remover o aluno.';
+        if (err.status === 404) {
+          errorMessage = 'Aluno não encontrado. Pode já ter sido removido.';
+        }
+        await this.presentAlert('Erro', errorMessage);
+      }
+    });
+
+  }
+
+
+  async presentAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({ header, message, buttons: ['OK'] });
+    await alert.present();
+  }
 }
