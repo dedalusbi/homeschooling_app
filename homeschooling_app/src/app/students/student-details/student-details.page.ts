@@ -6,7 +6,7 @@ import { catchError, EMPTY, Observable } from 'rxjs';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { add, calendar, camera, checkmark, person } from 'ionicons/icons';
+import { add, calendar, camera, checkmark, create, createOutline, person } from 'ionicons/icons';
 import { Student } from 'src/app/models/student.model';
 
 @Component({
@@ -35,7 +35,9 @@ export class StudentDetailsPage implements OnInit {
       'person': person,
       'calendar': calendar,
       'add': add,
-      'checkmark': checkmark
+      'checkmark': checkmark,
+      'create': create,
+      'create-outline': createOutline
     });
   }
 
@@ -82,6 +84,11 @@ export class StudentDetailsPage implements OnInit {
     //Placeholder para implementação futura
     console.log('Alterar foto para aluno')
 
+  }
+
+  goToEditStudent() {
+    if (!this.studentId) return;
+    this.navCtrl.navigateForward(`/tabs/alunos/student-form/${this.studentId}`);
   }
 
 }

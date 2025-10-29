@@ -30,4 +30,8 @@ export class StudentService {
     return this.http.get<{data: Student }>(`${this.apiUrl}/students/${id}`);
   }
 
+  updateStudent(id: string, studentData: Partial<Student>): Observable<{data: Student}> {
+    return this.http.put<{data: Student}>(`${this.apiUrl}/students/${id}`, {student: studentData});
+  }
+
 }

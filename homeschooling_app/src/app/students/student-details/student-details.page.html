@@ -5,7 +5,9 @@
     </ion-buttons>
     <ion-title class="text-texto-profundo text-center">{{(student$ | async)?.data?.name || 'Detalhes' }}  </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="saveChanges()" class="[--color:theme(colors.azul-sereno)] font-medium normal-case">Salvar</ion-button>
+      <ion-button (click)="goToEditStudent()" class="[--color:theme(colors.azul-sereno)] font-medium normal-case">
+        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -52,6 +54,19 @@
         <p class="text-base py-1 px-1">{{student.grade_level || 'Não informado'}}</p>
         <!--ion-input...-->
 
+      </div>
+
+      <!--Individualidades-->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-2 ml-1">Individualidades</ion-label>
+        <div *ngIf="student.individualities && student.individualities.length>0; else noIndividualities" class="flex flex-wrap gap-2 pt-1">
+          <ion-chip *ngFor="let ind of student.individualities" outline="true" class="text-xs border-linha-sutil">
+            <ion-label class="text-texto-profundo"><strong>{{ind.type}}: </strong> {{ind.description}}</ion-label>
+          </ion-chip>
+        </div>
+        <ng-template #noIndividualities>
+          <p class="text-sm">Nenhuma característica informada.</p>
+        </ng-template>
       </div>
 
 

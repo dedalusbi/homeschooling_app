@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonLabel, IonModal, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonLabel, IonModal, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { group } from '@angular/animations';
@@ -21,7 +21,8 @@ interface DescricaoCategoria {
   standalone: true,
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,
     ReactiveFormsModule, IonButtons, IonBackButton, IonIcon, IonLabel, IonInput,
-    IonDatetimeButton, IonModal, IonDatetime, IonButton, IonSelect, IonSelectOption
+    IonDatetimeButton, IonModal, IonDatetime, IonButton, IonSelect, IonSelectOption,
+    IonSpinner
   ]
 })
 export class StudentFormPage implements OnInit {
@@ -29,6 +30,7 @@ export class StudentFormPage implements OnInit {
   studentForm: FormGroup;
   pageTitle = 'Adicionar aluno';
   studentId: string | null = null; //Para saber se estamos em modo de edição
+  isLoading = false; //Para loading inicial (edição)
 
   //Definição das opções para os dropdowns
   readonly caracteristicaOptions: string[]=[
@@ -181,11 +183,47 @@ export class StudentFormPage implements OnInit {
 
   // -- Carregamento de dados para edição (Exemplo) ---
   async loadStudentData(id: string) {
+    this.isLoading=true;
     const loading = await this.loadingCtrl.create({message: 'Carregando dados...'});
     await loading.present();
 
-    //Substituir pela chamada real ao serviço
-    //this.studentService.getStudentById(id).subscribe({});
+    this.studentService.getStudentById(id).subscribe({
+      next: async (res) => {
+        const studentData = res.data;
+
+        // Pré-processa a data para o formato ISO que ion-datetime aceita
+        let birthDateForForm = null;
+        if (studentData.birth_date) {
+          try {
+            birthDateForForm = new Date(studentData.birth_date+'T00:00:00').toISOString();
+          } catch (e) { console.error("erro ao converter data para edição:",e)}
+        }
+        this.studentForm.patchValue({
+          name: studentData.name,
+          birth_date: birthDateForForm,
+          grade_level: studentData.grade_level
+        });
+        //Limpa o Form Array antes de adicionar os itens existentes
+        this.individualitiesFormArray.clear();
+        //Adiciona um FormGroup ao formArray para cada individualidade existente
+        if (studentData.individualities && Array.isArray(studentData.individualities)) {
+          studentData.individualities.forEach(ind => {
+            this.individualitiesFormArray.push(
+              this.createIndividualidadeGroup(ind.type, ind.description)
+            );
+          });
+        }
+        this.isLoading=false;
+        await loading.dismiss();
+      },
+      error: async (err) => {
+        console.error("Erro ao carregar aluno para edição", err);
+        this.isLoading = false;
+        await loading.dismiss();
+        await this.presentAlert('Erro', 'Não foi possível carregar os dados do aluno.');
+        this.navCtrl.navigateBack('/tabs/alunos');
+      }
+    });
   }
 
 
@@ -241,6 +279,8 @@ export class StudentFormPage implements OnInit {
       } catch (e) {
         formData.birth_date = null;
       }
+    } else {
+      formData.birth_date = null;
     }
 
     //Garante que individualities sejsa um array(pode ser null se nunca adicionado)
@@ -250,7 +290,25 @@ export class StudentFormPage implements OnInit {
 
     //Lógica pra criar ou atualizar
     if (this.studentId) {
-      //Lógica de ATUALIZAÇÃO
+      
+      //LÓGICA DE ATUALIZAÇÃO
+
+      this.studentService.updateStudent(this.studentId, formData).subscribe({
+        next: async (res) => {
+          await loading.dismiss();
+          await this.presentAlert('Sucesso', 'Aluno atualizado com sucesso!');
+          this.location.back();
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          console.error('Erro ao atualizar aluno:',err);
+          let errorMessage = 'Não foi possível atualizar o aluno.';
+          if (err.status === 404) {errorMessage = 'Aluno não encontrado.';}
+          else if (err.error?.errors) {errorMessage=Object.values(err.error.errors).flat().join(' '); }
+          await this.presentAlert('Erro', errorMessage);
+
+        }
+      });
 
     } else {
       //LÓGICA DE CRIAÇÃO
