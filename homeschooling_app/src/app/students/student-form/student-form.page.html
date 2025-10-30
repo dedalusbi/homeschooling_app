@@ -77,8 +77,8 @@
         <div formArrayName="individualities" class="space-y-3">
           <div *ngFor="let item of individualitiesFormArray.controls; let i = index"
                [formGroupName]="i"
-               class="flex items-center space-x-2 bg-white rounded-lg p-3 shadow-sm">
-            <div class="flex-1">
+               class="grid grid-cols-[1fr, 1fr, auto] gap-2 items-end bg-white rounded-lg p-3 shadow-sm">
+            <div class="min-w-0">
               <ion-label position="stacked" class="text-xs text-texto-suave mb-1">Característica</ion-label>
               <ion-select placeholder="Selecione" formControlName="type" interface="popover" class="text-sm">
                 <ion-select-option *ngFor="let carac of caracteristicaOptions" [value]="carac">
@@ -86,7 +86,7 @@
                 </ion-select-option>
               </ion-select>
             </div>
-            <div class="flex-1">
+            <div class="min-w-0">
               <ion-label position="stacked" class="text-xs text-texto-suave mb-1">Descrição</ion-label>
               <ion-item button="true" detail="false" lines="none"
               class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-9 flex items-center"
@@ -100,7 +100,7 @@
                 Obrigatório.
               </div>
             </div>
-            <ion-button fill="clear" color="danger" size="small" (click)="removeIndividualidade(i)" class="self-end mb-1">
+            <ion-button fill="clear" color="danger" size="small" (click)="removeIndividualidade(i)">
               <ion-icon slot="icon-only" name="remove-circle" class="text-lg"></ion-icon>
             </ion-button>
           </div>
@@ -110,7 +110,7 @@
         </div>
       </div>
 
-      <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white hover:bg-opacity-90 mt-8" [disabled]="studentForm.invalid">
+      <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case meu-botao-gradiente text-white hover:bg-opacity-90 mt-8" [disabled]="studentForm.invalid">
         <ion-icon name="save" slot="start"></ion-icon>
         Salvar Aluno
       </ion-button>

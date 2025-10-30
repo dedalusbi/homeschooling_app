@@ -1,0 +1,13 @@
+.meu-botao-gradiente {
+  // Usando @apply do Tailwind (SE este arquivo for processado pelo Tailwind)
+  // --background: linear-gradient(to right, theme('colors.azul-sereno'), theme('colors.green.500')); 
+
+  // OU Usando valores hex diretamente (mais seguro se não tiver certeza do processamento)
+  --background: linear-gradient(to right, #3A5A92, #22c55e); // Substitua pelos seus valores hex
+
+
+  background: transparent !important;
+  border: none;
+  box-shadow: none;
+
+}
