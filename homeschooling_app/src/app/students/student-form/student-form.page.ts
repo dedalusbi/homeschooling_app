@@ -9,6 +9,7 @@ import { addIcons } from 'ionicons';
 import { addCircle, calendar, camera, caretDown, person, removeCircle, save } from 'ionicons/icons';
 import { IndividualidadeDescricaoModalComponent } from '../components/individualidade-descricao-modal/individualidade-descricao-modal.component';
 
+
 //interface para a nova estrutura das opções da descrição
 interface DescricaoCategoria {
   category: string;
@@ -32,6 +33,7 @@ export class StudentFormPage implements OnInit {
   pageTitle = 'Adicionar aluno';
   studentId: string | null = null; //Para saber se estamos em modo de edição
   isLoading = false; //Para loading inicial (edição)
+  currentAvatarId: string | null = null;
 
   //Definição das opções para os dropdowns
   readonly caracteristicaOptions: string[]=[
@@ -153,7 +155,8 @@ export class StudentFormPage implements OnInit {
     private alertCtrl: AlertController,
     private route: ActivatedRoute,
     private location: Location,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+
   ) {
 
     addIcons({
@@ -169,6 +172,7 @@ export class StudentFormPage implements OnInit {
       name: ['', [Validators.required]],
       birth_date: [null],
       grade_level: [null],
+      avatar_id: [null],
       individualities: this.fb.array([])
     });
 
@@ -184,6 +188,9 @@ export class StudentFormPage implements OnInit {
     }
   }
 
+
+
+
   // -- Carregamento de dados para edição (Exemplo) ---
   async loadStudentData(id: string) {
     this.isLoading=true;
@@ -193,7 +200,7 @@ export class StudentFormPage implements OnInit {
     this.studentService.getStudentById(id).subscribe({
       next: async (res) => {
         const studentData = res.data;
-
+        console.log("res data - ", res.data);
         // Pré-processa a data para o formato ISO que ion-datetime aceita
         let birthDateForForm = null;
         if (studentData.birth_date) {
@@ -204,7 +211,8 @@ export class StudentFormPage implements OnInit {
         this.studentForm.patchValue({
           name: studentData.name,
           birth_date: birthDateForForm,
-          grade_level: studentData.grade_level
+          grade_level: studentData.grade_level,
+          avatar_id: studentData.avatar_id
         });
         //Limpa o Form Array antes de adicionar os itens existentes
         this.individualitiesFormArray.clear();
@@ -332,12 +340,6 @@ export class StudentFormPage implements OnInit {
     }
   }
 
-  //Placeholder para atualizar a fto..
-  changeStudentPhoto() {
-    console.log('Abrir seltor de foto...')
-  }
-
-
   async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({header, message, buttons: ['OK']});
     await alert.present();
@@ -378,6 +380,9 @@ export class StudentFormPage implements OnInit {
     }
 
   }
+
+
+
 
 }
 

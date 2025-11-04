@@ -16,7 +16,7 @@
           <ion-card-content class="flex items-center space-x-3 p-3">
             <!--Foto e status-->
             <div class="relative w-12 h-12">
-              <img [src]="'assets/placeholder-avatar.png'" alt="Foto do aluno" class="rounded-full w-full h-full object-cover">
+              <img [src]="'assets/avatars/' + (student.avatar_id || 'placeholder.png')" alt="Avatar do aluno" class="rounded-full w-full h-full object-cover bg-gray-200">
             </div>
             <!--Nome e idade-->
             <div class="flex-grow">

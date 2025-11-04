@@ -6,5 +6,9 @@ export interface Student {
   birth_date?: string |null; //formato YYYY-MM-DD
   grade_level?: string | null;
   individualities?: any; //jsonb
+  avatar_id?: string | null;
+
+  inserted_at?:string;
+  updated_at?:string;
 
 }
