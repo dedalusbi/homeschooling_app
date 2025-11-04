@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {Student} from '../models/student.model';
+import { Subject } from '../models/subject.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,15 @@ export class StudentService {
 
   deleteStudent(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/students/${id}`);
+  }
+
+  // Busca a lista de matérias de um aluno específico, filtrada por status
+  getSubjects(studentId: string, status: 'active' | 'completed' = 'active'): Observable<{data: Subject[]}> {
+    //Constrói os parâmetros de query
+    const params = new HttpParams().set('filter[status]', status);
+
+    return this.http.get<{data: Subject[]}>(`${this.apiUrl}/students/${studentId}/subjects`, {params: params});
+
   }
 
 }

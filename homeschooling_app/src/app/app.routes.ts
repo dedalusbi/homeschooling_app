@@ -45,6 +45,11 @@ export const routes: Routes = [
     ]
 
   },
+  {
+    path: 'manage-subjects/:student_id',
+    loadComponent: () => import('./students/manage-subjects/manage-subjects.page').then(m => m.ManageSubjectsPage),
+    canActivate: [authGuard]
+  },
 
 
   //Outras rotas principais (ex.: tabs)
@@ -59,6 +64,10 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'auth/welcome'
+  },
+  {
+    path: 'manage-subjects',
+    loadComponent: () => import('./students/manage-subjects/manage-subjects.page').then( m => m.ManageSubjectsPage)
   },
   
   
