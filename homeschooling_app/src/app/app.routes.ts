@@ -50,7 +50,16 @@ export const routes: Routes = [
     loadComponent: () => import('./students/manage-subjects/manage-subjects.page').then(m => m.ManageSubjectsPage),
     canActivate: [authGuard]
   },
-
+  {
+    path: 'subject-form/:student_id',
+    loadComponent: () => import('./students/subject-form/subject-form.page').then(m => m.SubjectFormPage),
+    canActivate: [authGuard]
+  },
+  //{
+  //  path: 'subject-details/:id/edit',
+  //  loadComponent: () => import('./students/subject-form/subject-form.page').then(m => m.SubjectFormPage),
+  //  canActivate: [authGuard]
+  //},
 
   //Outras rotas principais (ex.: tabs)
   {
@@ -68,6 +77,10 @@ export const routes: Routes = [
   {
     path: 'manage-subjects',
     loadComponent: () => import('./students/manage-subjects/manage-subjects.page').then( m => m.ManageSubjectsPage)
+  },
+  {
+    path: 'subject-form',
+    loadComponent: () => import('./students/subject-form/subject-form.page').then( m => m.SubjectFormPage)
   },
   
   

@@ -1,0 +1,37 @@
+<ion-header mode="ios" class="[--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="'/manage-subjects/'+studentId" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="text-texto-profundo text-center">{{pageTitle}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div class="p-6 text-texto-profundo md:max-w-md md:mx-auto md:pt-12">
+    <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()">
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nome da matéria</ion-label>
+        <div class="flex items-center">
+          <ion-input type="text" placeholder="Ex.: Matemática" formControlName="name" class="flex-grow text-base"></ion-input>
+        </div>
+        <div *ngIf="f['name'].invalid && f['name'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+          Nome é obrigatório.
+        </div>
+      </div>
+
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Descrição (opcional)</ion-label>
+        <ion-textarea
+          placeholder="Ex.: Foco em álgebra e geometria..." formControlName="description"
+          [autoGrow]="true"></ion-textarea>
+      </div>
+
+      <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white hover:bg-opacity-90 mt-8"
+        [disabled]="subjectForm.invalid">
+        <ion-icon name="save" slot="start"></ion-icon>
+        Salvar Matéria
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

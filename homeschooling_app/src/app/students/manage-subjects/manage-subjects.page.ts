@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
+import { IonBackButton, IonButtons, IonCard, IonCardContent, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { Subject } from 'src/app/models/subject.model';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
@@ -13,7 +13,11 @@ import { add, body, book, calculator, chevronForward, create, filter, flask, fol
   templateUrl: './manage-subjects.page.html',
   styleUrls: ['./manage-subjects.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,
+    IonButtons, IonBackButton, IonItem, IonSelect, IonSelectOption,
+    IonSegment, IonSegmentButton, IonSpinner, IonCard, IonCardContent,
+    IonIcon, IonFab, IonFabButton
+  ]
 })
 export class ManageSubjectsPage implements OnInit {
 
@@ -61,7 +65,7 @@ export class ManageSubjectsPage implements OnInit {
     }
   }  
 
-  segmentChange(event: any) {
+  segmentChanged(event: any) {
     this.currentStatus = event.detail.value;
     this.loadSubjects();
   }

@@ -48,4 +48,12 @@ export class StudentService {
 
   }
 
+
+  createSubject(studentId: string, subjectData: Partial<Subject>): Observable<{data: Subject}> {
+    return this.http.post<{data:Subject}>(`${this.apiUrl}/students/${studentId}/subjects`,
+      {subject: subjectData}
+    );
+
+  }
+
 }
