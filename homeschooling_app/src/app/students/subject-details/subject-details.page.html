@@ -1,0 +1,102 @@
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="'/manage-subjects/'+studentIdParam" class="text-texto-profundo"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="text-texto-profundo font-bold">{{(subject$ | async)?.data?.name || 'Detalhes'}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToEditSubject()" class="text-azul-sereno">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div *ngIf="subject$ | async as subjectWrapper; else loadingDetails">
+    <ng-container *ngIf="subjectWrapper.data as subject">
+      <div class="px-4 pt-2 pb-4">
+        <div class="bg-azul-sereno text-white rounded-xl shadow-lg p-4">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <ion-icon [name]="getIconForSubject(subject.name)" class="text-xl"></ion-icon>
+            </div>
+            <div>
+              <h2 class="font-bold text-xl">{{subject.name}}</h2>
+              <p class="text-xs opacity-80">
+                {{subject.aulas_concluidas || 0}} aulas concluídas • {{subject.progresso || 0}}% progresso
+              </p>
+            </div>
+          </div>
+          <div class="w-full bg-black/20 rounded-full h-1.5">
+            <div class="bg-white h-1.5 rounded-full" [style.width.%]="subject.progresso || 0"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 mb-6">
+        <h3 class="text-lg font-semibold text-texto-profundo mb-2">Histórico de atividades</h3>
+        <div class="space-y-2">
+          <ion-card class="m-0 rounded-xl shadow-sm bg-white">
+            <ion-card-content class="flex items-center space-x-3 p-3">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <ion-icon name="book" class="text-lg text-green-600"></ion-icon>
+              </div>
+              <div class="flex-grow">
+                <h3 class="font-medium text-texto-profundo">Aula sobre frações</h3>
+                <p class="text-xs text-texto-suave">18/10/2024</p>
+              </div>
+              <ion-chip outline="false" color="success" class="text-xs h-6 px-2">Concluída</ion-chip>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+
+      <div class="px-4 mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-lg font-semibold text-texto-profundo">Avaliações</h3>
+          <ion-button fill="solid" size="small" (click)="goToAddEvaluation()" class="[--background:theme(colors.amarelo-foco)] text-white text-xs normal-case h-7 shadow-sm">
+            <ion-icon name="add" slot="start"></ion-icon>
+            Adicionar
+          </ion-button>
+        </div>
+        <div class="space-y-2">
+          <ion-card button="true" (click)="goToEvaluationDetails('1')" class="m-0 rounded-xl shadow-sm bg-white">
+            <ion-card-content class="flex items-center space-x-3 p-3">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <ion-icon name="document-text" class="text-lg text-green-600"></ion-icon>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-medium text-texto-profundo">Prova Mensal</h4>
+                <p class="text-xs text-texto-suave">Realizada em 15/10/2024</p>
+              </div>
+              <ion-chip color="success" class="text-sm font-bold h-7 w-7 flex items-center justify-center">10</ion-chip>
+              <ion-icon name="chevron-forward" class="text-texto-suave text-lg ml-1"></ion-icon>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+
+    </ng-container>
+  </div>
+
+
+  <ng-template #loadingDetails>
+    <div class="flex items-center justify-center h-64">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  </ng-template>
+
+  <ion-footer class="ion-no-border [--background:theme(colors.fundo-neutro)] safe-area-bottom">
+    <ion-toolbar class="[--background:theme(colors.fundo-neutro)] p-4">
+      <ion-button *ngIf="(subject$ | async)?.data?.status == 'active'"
+        expand="block" (click)="confirmFinishSubject()" class="h-12 text-base normal-case [--background:theme(colors.vermelho-erro)] text-white shadow-lg">Finalizar Matéria
+      </ion-button>
+      <ion-button *ngIf="(subject$ | async)?.data?.status == 'completed'"
+        expand="block" (click)="reactivateSubject()" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white shadow-lg">Reativar Matéria
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+</ion-content>

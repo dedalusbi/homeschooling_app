@@ -53,7 +53,11 @@ export class StudentService {
     return this.http.post<{data:Subject}>(`${this.apiUrl}/students/${studentId}/subjects`,
       {subject: subjectData}
     );
+  }
 
+
+  getSubjectById(subjectId: string): Observable<{data: Subject}> {
+    return this.http.get<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}`);
   }
 
 }
