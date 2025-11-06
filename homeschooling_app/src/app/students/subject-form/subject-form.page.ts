@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonLabel, IonTextarea, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
 import { save, thumbsUpSharp } from 'ionicons/icons';
@@ -22,6 +22,7 @@ export class SubjectFormPage implements OnInit {
   pageTitle = 'Adicionar Matéria';
   studentId: string | null = null;
   subjectId: string | null = null;
+  isLoading=false;
 
   get f() {return this.subjectForm.controls;}
 
@@ -31,7 +32,8 @@ export class SubjectFormPage implements OnInit {
     private navCtrl: NavController,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     addIcons({
       'save': save
@@ -44,42 +46,103 @@ export class SubjectFormPage implements OnInit {
   }
 
   ngOnInit() {
-    this.studentId = this.route.snapshot.paramMap.get('student_id');
-    //lógica de edição
+    this.subjectId = this.route.snapshot.paramMap.get('id');
+
+    if (this.subjectId) {
+      //MODO EDIÇÃO
+      this.pageTitle='Editar Matéria';
+      this.loadSubjectData(this.subjectId);
+    } else {
+      // MODO CRIAÇÃO
+      this.pageTitle = 'Adicionar Matéria';
+      this.studentId = this.route.snapshot.paramMap.get('student_id');
+      if (!this.studentId) {
+        console.error("ID do aluno não fornecido para criar matéria.");
+        this.presentAlert('Erro', 'Não foi possível identificar o aluno. Volte e tente novamente.');
+        this.navCtrl.navigateBack('/tabs/alunos');
+      }
+    }
+
+    
   }
 
   async onSubmit() {
-    if (!this.studentId) {
-      await this.presentAlert('Erro', 'ID do aluno não encontrado. Não é possível salvar.');
-      return;
-    }
 
     if (this.subjectForm.invalid) {
       this.subjectForm.markAllAsTouched();
       return;
     }
 
-    const loading = await this.loadingCtrl.create({message: 'Salvando matéria...'});
+    const loading = await this.loadingCtrl.create({message: 'Salvando...'});
     await loading.present();
-
     const formData = this.subjectForm.value;
 
-    //TODO Lógida de edição
-
-    //Lógica de criação
-    this.studentService.createSubject(this.studentId, formData).subscribe({
-      next: async (res) => {
+    //Verifica se estamos salvando ou criando...
+    if (this.subjectId) {
+      //Modo EDIÇÃO
+      this.studentService.updateSubject(this.subjectId, formData).subscribe({
+        next: async (res) => {
         await loading.dismiss();
-        await this.presentAlert('Sucesso', 'Matéria adicionada com sucesso!');
-        this.navCtrl.navigateBack(`/manage-subjects/${this.studentId}`);
+        await this.presentAlert('Sucesso', 'Matéria atualizada!');
+        this.navCtrl.back();
       },
       error: async (err) => {
         await loading.dismiss();
-        let errorMessage='Não foi possível salvar a matéria.';
+        let errorMessage='Não foi possível atualizar a matéria.';
         if (err.error?.errors) {
           errorMessage = Object.values(err.error.errors).flat().join(' ');
         }
         await this.presentAlert('Erro', errorMessage);
+      }
+      });
+    } else if (this.studentId) {
+        //MODO CRIAÇÃO
+        this.studentService.createSubject(this.studentId, formData).subscribe({
+        next: async (res) => {
+          await loading.dismiss();
+          await this.presentAlert('Sucesso', 'Matéria adicionada com sucesso!');
+          this.navCtrl.navigateBack(`/manage-subjects/${this.studentId}`);
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          let errorMessage='Não foi possível salvar a matéria.';
+          if (err.error?.errors) {
+            errorMessage = Object.values(err.error.errors).flat().join(' ');
+          }
+          await this.presentAlert('Erro', errorMessage);
+        }
+      });
+    } else {
+      await loading.dismiss();
+      await this.presentAlert('Erro Grave', 'ID do aluno ou da matéria não definido');
+    }
+
+    
+  }
+
+  async loadSubjectData(id: string) {
+    this.isLoading=true;
+    const loading = await this.loadingCtrl.create({message: 'Carregando dados...'});
+    await loading.present();
+
+    this.studentService.getSubjectById(id).subscribe({
+      next: async (res) => {
+        const subjectData = res.data;
+        this.subjectForm.patchValue({
+          name: subjectData.name,
+          description: subjectData.description,
+          status: subjectData.status
+        });
+        this.studentId = subjectData.student_id;
+        this.isLoading = false;
+        await loading.dismiss();
+      },
+      error: async (err) => {
+        console.error("Erro ao carregar matéria:",err);
+        this.isLoading=false;
+        await loading.dismiss();
+        await this.presentAlert('Erro', 'Não foi possível carregar os dados da matéria');
+        this.navCtrl.back();
       }
     });
   }

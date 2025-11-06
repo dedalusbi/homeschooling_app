@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { BehaviorSubject, catchError, EMPTY } from 'rxjs';
 import { Subject } from 'src/app/models/subject.model';
 import { ActivatedRoute } from '@angular/router';
 import { StudentService } from '../student.service';
 import { addIcons } from 'ionicons';
-import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, musicalNotes, pencil, people, text } from 'ionicons/icons';
+import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text } from 'ionicons/icons';
 
 @Component({
   selector: 'app-subject-details',
@@ -28,7 +28,8 @@ export class SubjectDetailsPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private studentService: StudentService,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private alertCtrl: AlertController
   ) { 
     addIcons({
       'create': create,
@@ -45,6 +46,8 @@ export class SubjectDetailsPage implements OnInit {
       'people': people,
       'chevron-forward': chevronForward,
       'add': add,
+      'help-circle': helpCircle,
+      'information-circle': informationCircle
     });
   }
 
@@ -88,6 +91,22 @@ export class SubjectDetailsPage implements OnInit {
   goToEvaluationDetails(id: string) {console.log('Navegar para detalhes avaliação');}
   confirmFinishSubject() {console.log('Abrir modal para Finalizar Matéria');}
   reactivateSubject() {console.log('Abrir modal para reativar matéria');}
+
+
+  async showDescription(description: string | null | undefined) {
+    const messageToShow = (description && description.trim() !== '')
+      ? description
+      : 'Nenhuma descrição fornecida para esta matéria.';
+
+    const alert = await this.alertCtrl.create({
+      header: 'Descrição da matéria',
+      message: messageToShow,
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
 
   getIconForSubject(name: string | undefined): string {
      if (!name) return 'book';

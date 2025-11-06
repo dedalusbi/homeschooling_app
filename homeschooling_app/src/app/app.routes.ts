@@ -60,11 +60,11 @@ export const routes: Routes = [
     loadComponent: () => import('./students/subject-details/subject-details.page').then(m => m.SubjectDetailsPage),
     canActivate: [authGuard]
   },
-  //{
-  //  path: 'subject-details/:id/edit',
-  //  loadComponent: () => import('./students/subject-form/subject-form.page').then(m => m.SubjectFormPage),
-  //  canActivate: [authGuard]
-  //},
+  {
+    path: 'subject-form/edit/:id',
+    loadComponent: () => import('./students/subject-form/subject-form.page').then(m => m.SubjectFormPage),
+    canActivate: [authGuard]
+  },
 
   //Outras rotas principais (ex.: tabs)
   {

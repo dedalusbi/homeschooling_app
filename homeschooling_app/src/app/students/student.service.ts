@@ -60,4 +60,11 @@ export class StudentService {
     return this.http.get<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}`);
   }
 
+
+   updateSubject(subjectId: string, subjectData: Partial<Subject>): Observable<{data: Subject}> {
+    return this.http.put<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}`,
+      {subject: subjectData}
+    );
+  }
+
 }
