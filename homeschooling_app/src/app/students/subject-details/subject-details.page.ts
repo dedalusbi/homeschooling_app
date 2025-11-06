@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AlertController, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonSpinner, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { BehaviorSubject, catchError, EMPTY } from 'rxjs';
 import { Subject } from 'src/app/models/subject.model';
 import { ActivatedRoute } from '@angular/router';
 import { StudentService } from '../student.service';
 import { addIcons } from 'ionicons';
 import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text } from 'ionicons/icons';
+import { FinalReportModalComponent } from '../components/final-report-modal/final-report-modal.component';
 
 @Component({
   selector: 'app-subject-details',
@@ -24,12 +25,15 @@ export class SubjectDetailsPage implements OnInit {
   subject$ = new BehaviorSubject<{data: Subject} | null>(null);
   subjectId: string |null = null;
   studentIdParam: string | null = null;
+  currentSubject: Subject | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private studentService: StudentService,
     private navCtrl: NavController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
+    private loadignCtrl: LoadingController
   ) { 
     addIcons({
       'create': create,
@@ -75,6 +79,7 @@ export class SubjectDetailsPage implements OnInit {
     ).subscribe(response => {
       this.subject$.next(response);
       this.studentIdParam = response.data.student_id;
+      this.currentSubject = response.data;
     });
   }
 
@@ -89,7 +94,59 @@ export class SubjectDetailsPage implements OnInit {
   //Placeholders para ações (a implementar)
   goToAddEvaluation() {console.log('Navegar para adicionar avaliação');}
   goToEvaluationDetails(id: string) {console.log('Navegar para detalhes avaliação');}
-  confirmFinishSubject() {console.log('Abrir modal para Finalizar Matéria');}
+  
+
+  async confirmFinishSubject() {
+    if (!this.currentSubject) return;
+
+    const modal = await this.modalCtrl.create({
+      component: FinalReportModalComponent,
+      componentProps: {
+        subject: this.currentSubject
+      },
+      breakpoints: [0, 0.85],
+      initialBreakpoint: 0.85,
+      backdropBreakpoint: 0.5
+    });
+
+    await modal.present();
+
+    const {data, role} = await modal.onWillDismiss();
+
+    if (role === 'confirm' && data) {
+      this.executeCompletion(data);
+    }
+  }
+
+  async executeCompletion(reportData: {final_report: string}) {
+    if (!this.subjectId) return;
+    const loading = await this.loadignCtrl.create({
+      message: 'Finalizando matéria...'
+    });
+    await loading.present();
+
+    this.studentService.completeSubject(this.subjectId,reportData).subscribe({
+      next: async (res) => {
+        await loading.dismiss();
+        await this.presentAlert('Sucesso','Matéria finalizada e arquivada.');
+        this.subject$.next({data: res.data});
+        this.currentSubject = res.data;
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        let errorMessage = "Não foi possível finalizar a matéria.";
+        if (err.status === 422 && err.error?.errors?.final_report) {
+          errorMessage = err.error.errors.final_report[0];
+        } else if (err.status === 409) {
+          errorMessage = err.error.error;
+        }
+        await this.presentAlert('Erro', errorMessage);
+      }
+    });
+  }
+
+
+
   reactivateSubject() {console.log('Abrir modal para reativar matéria');}
 
 
@@ -118,5 +175,13 @@ export class SubjectDetailsPage implements OnInit {
      if (lowerName.includes('música')) return 'musical-notes';
      if (lowerName.includes('física')) return 'body';
      return 'book'; // Padrão
+  }
+
+  async presentAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header,
+      message, buttons: ['OK']
+    });
+    await alert.present();
   }
 }

@@ -61,9 +61,15 @@ export class StudentService {
   }
 
 
-   updateSubject(subjectId: string, subjectData: Partial<Subject>): Observable<{data: Subject}> {
+  updateSubject(subjectId: string, subjectData: Partial<Subject>): Observable<{data: Subject}> {
     return this.http.put<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}`,
       {subject: subjectData}
+    );
+  }
+
+  completeSubject(subjectId: string, reportData: {final_report: string}): Observable<{data: Subject}> {
+    return this.http.post<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}/complete`,
+      {report: reportData}
     );
   }
 

@@ -1,0 +1,86 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-title class="text-texto-profundo font-medium text-center">Relatório Final de {{subject.name}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal(false)">
+        <ion-icon name="close" slot="icon-only" class="text-texto-suave"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:theme(colors.fundo-neutro)]">
+
+  <div class="p-4">
+
+    <div class="bg-azul-sereno text-white rounded-xl shadow-lg p-4 mb-6">
+      <div class="flex items-center space-x-3 mb-3">
+        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+          <ion-icon [name]="iconName" class="text-xl"></ion-icon>
+        </div>
+        <div>
+          <h2 class="font-bold text-xl">{{subject.name}}</h2>
+          <p class="text-xs opacity-80">
+            {{subject.aulas_concluidas || 0}} aulas concluídas • {{subject.progresso || 100}}% progresso
+          </p>
+        </div>
+      </div>
+      <div class="w-full bg-black/20 rounded-full h-1.5">
+        <div class="bg-white h-1.5 rounded-full" [style.width.%]="subject.progresso || 100"></div>
+      </div>
+    </div>
+
+    <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
+      <ion-label class="text-texto-profundo font-medium">Relatório Final *</ion-label>
+      <div class="bg-white rounded-lg p-3 shadow-sm mt-2 mb-4">
+        <ion-textarea
+          formControlName="final_report"
+          placeholder="Descreva o desempenho geral do aluno, principais conquistas, áreas de melhoria e recomendações para o próximo período..."
+          class="text-base min-h-24" [autoGrow]="true">
+        </ion-textarea>
+      </div>
+      <div *ngIf="f['final_report'].invalid && (f['final_report'].dirty || f['final_report'].touched)"
+        class="text-vermelho-erro text-xs -mt-2 mb-4 ml-1">
+        <span *ngIf="f['final_report'].errors?.['required']">O relatório é obrigatório.</span>
+        <span *ngIf="f['final_report'].errors?.['minLength']">O relatório deve ter, no mínimo, 100 caracteres.</span>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-texto-profundo">Resumo de Desempenho</h3>
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+          <h2 class="text-2xl font-bold text-azul-sereno">{{subject.aulas_concluidas}}</h2>
+          <p class="text-xs text-texto-suave">Aulas Realizadas</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+          <h2 class="text-2xl font-bold text-verde-crescimento">9</h2>
+          <p class="text-xs text-texto-suave">Nota média</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+          <h2 class="text-2xl font-bold text-azul-sereno">85%</h2>
+          <p class="text-xs text-texto-suave">Participação</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+          <h2 class="text-2xl font-bold text-amarelo-foco">3</h2>
+          <p class="text-xs text-texto-suave">Avaliações</p>
+        </div>
+      </div>
+
+      <ion-footer class="ion-no-border bg-transparent absolute left-0 right-0">
+        <ion-toolbar class="bg-transparent p-4">
+          <div class="flex gap-4">
+            <ion-button fill="outline" (click)="dismissModal(false)" class="flex-1 h-12 text-base normal-case [--border-color:theme(colors.linha-sutil)] text-texto-suave">
+              Cancelar
+            </ion-button>
+            <ion-button type="submit" [disabled]="reportForm.invalid" class="flex-1 h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-texto-suave">
+              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+              Concluir e arquivar
+            </ion-button>
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+
+    </form>
+
+  </div>
+
+</ion-content>
