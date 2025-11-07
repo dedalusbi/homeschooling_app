@@ -9,6 +9,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'planejamento',
+        children: [
+          {
+            //Rota principal de planejamento
+            path: '',
+            loadComponent:() => import('./planejamento/planejamento.page').then((m) => m.PlanejamentoPage),
+          }
+        ]
+      },
+      {
         path: 'alunos',
         children: [
           {
@@ -36,6 +46,10 @@ export const routes: Routes = [
        
       },  
     ],
+  },
+  {
+    path: 'planejamento',
+    loadComponent: () => import('./planejamento/planejamento.page').then( m => m.PlanejamentoPage)
   },
   
 ];
