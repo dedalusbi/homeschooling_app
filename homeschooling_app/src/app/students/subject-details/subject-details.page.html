@@ -4,10 +4,13 @@
       <ion-back-button defaultHref="'/manage-subjects/'+studentIdParam" class="text-texto-profundo"></ion-back-button>
     </ion-buttons>
     <ion-title class="text-texto-profundo font-bold">{{(subject$ | async)?.data?.name || 'Detalhes'}}</ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" *ngIf="(subject$ | async)?.data?.status === 'active'">
       <ion-button (click)="goToEditSubject()" class="text-azul-sereno">
         <ion-icon slot="icon-only" name="create"></ion-icon>
       </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end" *ngIf="(subject$ | async)?.data?.status === 'completed'" style="opacity: 0;">
+      <ion-button><ion-icon slot="icon-only" name="create"></ion-icon></ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -97,9 +100,14 @@
       <ion-button *ngIf="(subject$ | async)?.data?.status == 'active'"
         expand="block" (click)="confirmFinishSubject()" class="h-12 text-base normal-case [--background:theme(colors.vermelho-erro)] text-white shadow-lg">Finalizar Matéria
       </ion-button>
-      <ion-button *ngIf="(subject$ | async)?.data?.status == 'completed'"
-        expand="block" (click)="reactivateSubject()" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white shadow-lg">Reativar Matéria
-      </ion-button>
+      <div *ngIf="(subject$ | async)?.data?.status == 'completed'" class="space-y-2">
+        <ion-button *ngIf="(subject$ | async)?.data?.completion_report" expand="block" (click)="viewFinalReportAlert()" fill="outline" class="h-12 text-base normal-case [--color:theme(colors.azul-sereno)] [--border-color:theme(colors.azul-sereno)] shadow-lg">
+          Ver Relatório Final
+        </ion-button>
+        <ion-button expand="block" (click)="reactivateSubject()" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white shadow-lg">
+          Reativar Matéria
+        </ion-button>
+      </div>
     </ion-toolbar>
   </ion-footer>
 </ion-content>

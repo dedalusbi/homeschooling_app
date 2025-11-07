@@ -1393,6 +1393,16 @@ ion-button[shape="round"] {
   --border-radius: 9999px;
 }
 
+.report-alert {
+  .alert-message {
+    white-space: pre-wrap !important;
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
+    line-height: 1.6;
+  }
+}
+
 .hover\:bg-azul-sereno\/10:hover {
   background-color: rgb(58 90 146 / 0.1);
 }

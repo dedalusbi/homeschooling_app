@@ -224,6 +224,31 @@ export class SubjectDetailsPage implements OnInit {
      return 'book'; // Padrão
   }
 
+  async viewFinalReportAlert() {
+    const subject = this.currentSubject;
+
+    if (!subject || !subject.completion_report) {
+      console.error("Tentativa de ver relatório, mas não há relatório.");
+      return;
+    }
+
+    const messageToShow = (subject.completion_report && subject.completion_report.trim() !== '')
+      ? subject.completion_report
+      : 'Nenhum relatório forneciso para esta matéria.';
+
+    const alert = await this.alertCtrl.create({
+      header: `Relatório: ${subject.name}`,
+      message: messageToShow,
+      cssClass: 'report-alert',
+      buttons: ['OK']
+    });
+    await alert.present();
+
+  }
+
+
+
+
   async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({
       header,

@@ -5,6 +5,7 @@ export interface Subject {
     name: string;
     description: string | null;
     status: 'active' | 'completed';
+    completion_report?: string | null;
     aulas_concluidas?: number;
     aulas_totais?: number;
     progresso?:number;
