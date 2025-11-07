@@ -73,4 +73,8 @@ export class StudentService {
     );
   }
 
+  reactivateSubject(subjectId: string): Observable<{data: Subject}> {
+    return this.http.post<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}/reactivate`, {});
+  }
+
 }

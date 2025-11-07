@@ -147,8 +147,55 @@ export class SubjectDetailsPage implements OnInit {
 
 
 
-  reactivateSubject() {console.log('Abrir modal para reativar matéria');}
+  reactivateSubject() {
+    if (!this.currentSubject) return;
+    this.confirmReactivate(this.currentSubject.id, this.currentSubject.name);
+  }
 
+
+  async confirmReactivate(subjectId: string, subjectName: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Reativar matéria',
+      message: `Tem a certeza que deseja reativar a matéria "${subjectName}"? O relatório final associado a ela será permanentemente apagado.`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Reativar',
+          cssClass: 'primary',
+          handler: () => {
+            this.executeReactivation(subjectId);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async executeReactivation(subjectId: string) {
+    const loading = await this.loadignCtrl.create({message: 'Reativando matéria...'});
+    await loading.present();
+
+    this.studentService.reactivateSubject(subjectId).subscribe({
+      next: async (res) => {
+        await loading.dismiss();
+        await this.presentAlert('Sucesso', 'Matéria reativada!');
+        this.subject$.next({data: res.data});
+        this.currentSubject = res.data;
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        let errorMessage = "Não foi possível reativar a matéria.";
+        if (err.status === 409) {
+          errorMessage = err.error.error;
+        }
+        await this.presentAlert('Erro', errorMessage);
+      }
+    });
+  }
 
   async showDescription(description: string | null | undefined) {
     const messageToShow = (description && description.trim() !== '')
