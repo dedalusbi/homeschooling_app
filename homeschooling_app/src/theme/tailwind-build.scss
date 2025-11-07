@@ -1337,10 +1337,6 @@ video {
   --background: #4CAF50;
 }
 
-.\[--background\:theme\(colors\.vermelho-erro\)\] {
-  --background: #DC3545;
-}
-
 .\[--background\:theme\(colors\.white\)\] {
   --background: #fff;
 }
@@ -1359,48 +1355,6 @@ video {
 
 .\[--color\:theme\(colors\.azul-sereno\)\] {
   --color: #3A5A92;
-}
-
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
-
-/* Core CSS required for Ionic components to work properly */
-
-/* Basic CSS for apps built with Ionic */
-
-/* Optional CSS utils that can be commented out */
-
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-
-ion-button[shape="round"] {
-  --border-radius: 9999px;
-}
-
-.report-alert {
-  .alert-message {
-    white-space: pre-wrap !important;
-    max-height: 400px;
-    overflow-y: auto;
-    text-align: left;
-    line-height: 1.6;
-  }
 }
 
 .hover\:bg-azul-sereno\/10:hover {
