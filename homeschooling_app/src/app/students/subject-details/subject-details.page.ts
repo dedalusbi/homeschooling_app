@@ -7,7 +7,7 @@ import { Subject } from 'src/app/models/subject.model';
 import { ActivatedRoute } from '@angular/router';
 import { StudentService } from '../student.service';
 import { addIcons } from 'ionicons';
-import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text } from 'ionicons/icons';
+import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text, trash } from 'ionicons/icons';
 import { FinalReportModalComponent } from '../components/final-report-modal/final-report-modal.component';
 
 @Component({
@@ -51,7 +51,8 @@ export class SubjectDetailsPage implements OnInit {
       'chevron-forward': chevronForward,
       'add': add,
       'help-circle': helpCircle,
-      'information-circle': informationCircle
+      'information-circle': informationCircle,
+      'trash': trash
     });
   }
 
@@ -246,7 +247,54 @@ export class SubjectDetailsPage implements OnInit {
 
   }
 
+  async confirmDeleteSubject() {
+    const subject = this.currentSubject;
+    if (!subject) return;
 
+    const alert = await this.alertCtrl.create({
+      header: 'Tem certeza que seja deletar esta matéria?',
+      message: `Ao remover "${subject.name}", todo o seu histórico de atividades, avaliações e relatórios associados serão permanentemente apagados.`,
+      cssClass: 'report-alert',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Sim, Remover',
+          role: 'destructive',
+          cssClass: 'alert-button-danger',
+          handler: () => {
+            this.executeDelete(subject.id);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async executeDelete(subjectId: string) {
+    const loading = await this.loadignCtrl.create({message: 'Removendo matéria...'});
+    await loading.present();
+
+    this.studentService.deleteSubject(subjectId).subscribe({
+      next: async () => {
+        await loading.dismiss();
+        await this.presentAlert('Sucesso', 'Matéria removida permanentemente. Mantemos uma cópia de segurança por 30 dias. Caso queira reaver essa informação, contate nosso suporte.');
+        this.navCtrl.navigateRoot(`/manage-subjects/${this.studentIdParam}`);
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        console.error('Erro ao remover matéria:',err);
+        let errorMessage = "Não foi possível remover a matéria";
+        if (err.status === 404) {
+          errorMessage = 'Matéria não encontrada';
+        }
+        await this.presentAlert('Erro', errorMessage);
+      }
+    });
+  }
 
 
   async presentAlert(header: string, message: string) {

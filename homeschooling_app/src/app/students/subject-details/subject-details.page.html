@@ -97,17 +97,26 @@
 
   <ion-footer class="ion-no-border [--background:theme(colors.fundo-neutro)] safe-area-bottom">
     <ion-toolbar class="[--background:theme(colors.fundo-neutro)] p-4">
-      <ion-button *ngIf="(subject$ | async)?.data?.status == 'active'"
-        expand="block" (click)="confirmFinishSubject()" class="h-12 text-base normal-case [--background:theme(colors.vermelho-erro)] text-white shadow-lg">Finalizar Matéria
-      </ion-button>
-      <div *ngIf="(subject$ | async)?.data?.status == 'completed'" class="space-y-2">
-        <ion-button *ngIf="(subject$ | async)?.data?.completion_report" expand="block" (click)="viewFinalReportAlert()" fill="outline" class="h-12 text-base normal-case [--color:theme(colors.azul-sereno)] [--border-color:theme(colors.azul-sereno)] shadow-lg">
-          Ver Relatório Final
+      <ng-container *ngIf="(subject$ | async)?.data as subject">
+        <div *ngIf="subject.status === 'active'" class="space-y-2">
+          <ion-button
+            expand="block" (click)="confirmFinishSubject()" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white shadow-lg">
+            Finalizar Matéria
+          </ion-button>
+        </div>
+        <div *ngIf="subject.status == 'completed'" class="space-y-2">
+          <ion-button *ngIf="subject.completion_report" expand="block" (click)="viewFinalReportAlert()" fill="outline" class="h-12 text-base normal-case [--color:theme(colors.azul-sereno)] [--border-color:theme(colors.azul-sereno)] shadow-lg">
+            Ver Relatório Final
+          </ion-button>
+          <ion-button expand="block" (click)="reactivateSubject()" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white shadow-lg">
+            Reativar Matéria
+          </ion-button>
+        </div>
+        <ion-button expand="block" fill="clear" color="danger" (click)="confirmDeleteSubject()" class="mt-2 text-sm normal-case">
+          <ion-icon name="trash" slot="start"></ion-icon>
+          Remover Matéria Permanentemente
         </ion-button>
-        <ion-button expand="block" (click)="reactivateSubject()" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white shadow-lg">
-          Reativar Matéria
-        </ion-button>
-      </div>
+      </ng-container>
     </ion-toolbar>
   </ion-footer>
 </ion-content>

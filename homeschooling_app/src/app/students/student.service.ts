@@ -77,4 +77,8 @@ export class StudentService {
     return this.http.post<{data:Subject}>(`${this.apiUrl}/subjects/${subjectId}/reactivate`, {});
   }
 
+  deleteSubject(subjectId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/subjects/${subjectId}`);
+  }
+
 }
