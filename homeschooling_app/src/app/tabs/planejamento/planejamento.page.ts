@@ -3,13 +3,15 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, ModalController, NavController } from '@ionic/angular/standalone';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin, lastValueFrom, take } from 'rxjs';
 import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 import { addIcons } from 'ionicons';
-import { add, bookmark, calendar, chevronBack, chevronForward, notifications } from 'ionicons/icons';
+import { add, bookmark, calendar, calendarClear, chevronBack, chevronForward, notifications } from 'ionicons/icons';
 import { group } from '@angular/animations';
+import { Subject } from 'src/app/models/subject.model';
+import { AddAulaModalComponent } from 'src/app/components/add-aula-modal/add-aula-modal.component';
 
 interface ScheduleGroup {
   [dayOfWeek: number]: ScheduleEntry[];
@@ -62,7 +64,8 @@ export class PlanejamentoPage implements OnInit {
       'chevron-forward': chevronForward,
       'bookmark': bookmark,
       'add': add,
-      'calendar': calendar
+      'calendar': calendar,
+      'calendar-clear': calendarClear
     });
   }
 
@@ -137,8 +140,74 @@ export class PlanejamentoPage implements OnInit {
   }
 
 
-  //continuar daqui asyncOpenAddModal
 
+  //Função para abrir o modal de Adicionar Aula
+  async openAddModal() {
+
+    const [alunos, materias] = await this.loadModalPrerequisites();
+
+    const modal = this.modalCtrl.create({
+      component: AddAulaModalComponent,
+      componentProps: {
+        alunos: alunos,
+        materias: materias,
+        alunoSelecionadoId: this.selectedStudentId
+      },
+      breakpoints: [0, 0.9, 1],
+      initialBreakpoint: 0.9,
+      cssClass: 'add-aula-modal'
+    });
+
+    (await modal).present();
+
+    const {data, role} = await (await modal).onWillDismiss();
+    if (role === 'confirm') {
+      this.loadSchedule();
+    }
+
+  }
+
+  async loadModalPrerequisites(): Promise<[Student[] | null, Subject[]]> {
+    if (!this.selectedStudentId) return [null,[]];
+
+    //Carrega alunos (já temos) e matérias em paralelo
+    const alunos$ = this.students$.pipe(take(1));
+    const materias$ = this.studentService.getSubjects(this.selectedStudentId, 'active');
+
+    const [alunos, materiasResponse] = await lastValueFrom(forkJoin([alunos$, materias$]));
+    return [alunos, materiasResponse.data];
+  }
+
+
+  //Placeholder para o modal de edição
+  async openEditModal(aula: ScheduleEntry) {
+    console.log("Abrir modal de edição para: ", aula);
+  }
+
+
+  //Funções auxiliares de UI
+  changeWeek(direction: number) {
+    console.log("Mudar semana: ", direction);
+  }
+
+  saveAsTemplate() {
+    console.log("Salvar como modelo");
+  }
+
+  getDayDate(dayOfWeek: number) {
+    //TODO lógica para calcular a data real;
+    return new Date();
+  }
+
+  formatTime(time: string) {
+    return time.substring(0,5);
+  }
+
+  getSubjectColor(subjectName: string): string {
+    //TODO Lógica de cores
+    //placeholder
+    return '#3A5A92';
+  }
 
 
 }

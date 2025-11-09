@@ -1,13 +1,107 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>planejamento</ion-title>
+<ion-header mode="ios" class="ion-no-border [--background:theme(colors.fundo-neutro)]">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+      <ion-avatar class="w-8 h-8 ml-2 border-2 border-azul-sereno">
+        <img src="assets/avatars/placeholder.png">
+      </ion-avatar>
+    </ion-buttons>
+    <ion-title class="text-texto-profundo font-bold">Planejamento Semanal</ion-title>
+    <ion-buttons slot="end">
+      <ion-button >
+        <ion-icon class="text-texto-suave" slot="icon-only" name="notifications"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
+
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)] px-2 pt-1 pb-2">
+    <ion-item lines="none" class="[--background:transparent] text-sm w-auto">
+      <ion-select [(ngModel)]="selectedStudentId" (ionChange)="loadSchedule()"
+        interface="popover" class="text-texto-profundo font-medium" placeholder="Selecione um aluno">
+        <ion-select-option *ngFor="let student of (students$ | async)" [value]="student.id">
+          {{student.name}}
+        </ion-select-option>
+        <ion-select-option value="all">Todos os alunos</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-toolbar>
+
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)] px-4 pb-2">
+    <div class="flex justify-between items-center">
+      <ion-button fill="clear" (click)="changeWeek(-1)">
+        <ion-icon class="text-texto-suave" slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+      <span class="text-texto-profundo font-medium text-sm">{{weekDisplay}}</span>
+      <ion-button fill="clear" (click)="changeWeek(1)">
+        <ion-icon class="text-texto-suave" slot="icon-only" name="chevron-forward"></ion-icon>
+      </ion-button>
+    </div>
+
+  </ion-toolbar>
+
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">planejamento</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div class="p-4 pt-0">
+
+    <ion-button expand="block" (click)="saveAsTemplate()"
+      class="h-10 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white shadow mb-4">
+      <ion-icon name="bookmark" slot="start"></ion-icon>
+      Salvar como modelo
+    </ion-button>
+
+    <div *ngIf="isLoading" class="text-center py-10">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="text-texto-suave mt-2">Carregando cronograma...</p>
+    </div>
+
+    <div *ngIf="!isLoading && scheduleGroupedByDay" class="space-y-5">
+      <div *ngFor="let day of weekDays" class="relative">
+        <ng-container *ngIf="scheduleGroupedByDay[day.value] as aulasDoDia">
+          <div class="flex justify-between items-baseline mb-2 pl-4">
+            <h2 class="text-lg font-bold text-texto-profundo">{{day.label}}</h2>
+            <span class="text-xs text-texto-suave">{{getDayDate(day.value) | date:'dd MMM'}}</span>
+          </div>
+          <div class="space-y-2">
+            <ion-card *ngFor="let aula of aulasDoDia" (click)="openEditModal(aula)" button="true"
+              class="m-0 rounded-xl shadow-sm bg-white">
+              <ion-card-content class="flex items-center space-x-3 p-3">
+                <div class="w-1.5 h-12 rounded-full" [style.background-color]="getSubjectColor(aula.subject_name)"></div>
+                <div class="flex-grow">
+                  <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}}</p>
+                  <h3 class="font-semibold text-texto-profundo">{{aula.subject_name}}</h3>
+                  <p class="text-xs text-texto-suave"> Aluno 1</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <ion-avatar class="w-6 h-6 border border-linha-sutil">
+                    <img src="assets/avatars/placeholder.png">
+                  </ion-avatar>
+                  <ion-chip [color]="aula.status === 'Concluída' ? 'success' : 'warning'" class="text-xs h-6 px-2 m-0">
+                    {{aula.status || 'Pendente'}}
+                  </ion-chip>
+                </div>
+              </ion-card-content>
+            </ion-card>
+
+          </div>
+
+        </ng-container>
+
+      </div>
+
+    </div>
+
+    <div *ngIf="!isLoading && scheduleIsEmpty" class="text-center py-10 px-6 bg-white rounded-xl shadow-sm">
+      <ion-icon name="calendar-clear" class="text-4xl text-texto-suave mb-3"></ion-icon>
+      <h3 class="font-semibold text-texto-profundo mb-1">Cronograma vazio</h3>
+      <p class="text-sm text-texto-suave">Clique no '+' para agendar a primeira aula.</p>
+    </div>
+  </div>
+
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="m-4">
+    <ion-fab-button (click)="openAddModal()" class="[--background:theme(colors.amarelo-foco)] text-texto-profundo shadow-lg">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+
+  </ion-fab>
 </ion-content>
