@@ -20,7 +20,7 @@
         <ion-select-option *ngFor="let student of (students$ | async)" [value]="student.id">
           {{student.name}}
         </ion-select-option>
-        <ion-select-option value="all">Todos os alunos</ion-select-option>
+        <ion-select-option [value]="'all'">Todos os alunos</ion-select-option>
       </ion-select>
     </ion-item>
   </ion-toolbar>
@@ -69,7 +69,7 @@
                 <div class="flex-grow">
                   <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}} - {{formatTime(aula.end_time)}}</p>
                   <h3 class="font-semibold text-texto-profundo">{{aula.subject_name}}</h3>
-                  <p class="text-xs text-texto-suave"> Aluno 1</p>
+                  <p *ngIf="selectedStudentId === 'all'" class="text-xs text-texto-suave"> {{aula.student_name}}</p>
                 </div>
                 <div class="flex items-center space-x-2">
                   <ion-avatar class="w-6 h-6 border border-linha-sutil">

@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, ModalController, NavController } from '@ionic/angular/standalone';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
-import { BehaviorSubject, forkJoin, lastValueFrom, take } from 'rxjs';
+import { BehaviorSubject, forkJoin, lastValueFrom, Observable, take } from 'rxjs';
 import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
@@ -37,6 +37,8 @@ export class PlanejamentoPage implements OnInit {
   scheduleGroupedByDay: ScheduleGroup | null = null;
   scheduleIsEmpty = false;
   isLoading = false;
+
+  onlyMine: boolean = false;
 
   //definição dos dias da semana
   weekDays: DayOfWeek[] = [
@@ -93,8 +95,11 @@ export class PlanejamentoPage implements OnInit {
     });
   }
 
+
   loadSchedule() {
-    if (!this.selectedStudentId || this.selectedStudentId === 'all') {
+
+    
+    if (!this.selectedStudentId) {
       //implementar lógica para todos os alunos
       this.scheduleGroupedByDay={};
       this.scheduleIsEmpty=true;
@@ -105,7 +110,18 @@ export class PlanejamentoPage implements OnInit {
     this.isLoading=true;
     this.scheduleIsEmpty=false;
 
-    this.scheduleService.getScheduleForStudent(this.selectedStudentId).subscribe({
+    let scheduleObservable: Observable<{data: ScheduleEntry[]}>;
+
+    if (this.selectedStudentId=== "all") {
+      console.log('entrou em all');
+      scheduleObservable = this.scheduleService.getScheduleForAllStudents(this.onlyMine);
+    } else {
+      console.log("entrou no else");
+      scheduleObservable = this.scheduleService.getScheduleForStudent(this.selectedStudentId, this.onlyMine);
+    }
+
+
+    scheduleObservable.subscribe({
       next: (res) => {
         this.scheduleGroupedByDay = this.groupScheduleByDay(res.data);
         this.scheduleIsEmpty = res.data.length ===0;
