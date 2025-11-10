@@ -579,6 +579,18 @@ video {
   }
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .collapse {
   visibility: collapse;
 }
@@ -609,6 +621,10 @@ video {
 
 .top-0 {
   top: 0px;
+}
+
+.bottom-0 {
+  bottom: 0px;
 }
 
 .z-10 {
@@ -728,6 +744,10 @@ video {
 
 .mt-auto {
   margin-top: auto;
+}
+
+.-ml-3 {
+  margin-left: -0.75rem;
 }
 
 .block {
@@ -1161,6 +1181,11 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 .pb-4 {
   padding-bottom: 1rem;
 }
@@ -1460,6 +1485,16 @@ ion-button[shape="round"] {
 
 .hover\:underline:hover {
   text-decoration-line: underline;
+}
+
+.peer:checked ~ .peer-checked\:bg-azul-sereno {
+  --tw-bg-opacity: 1;
+  background-color: rgb(58 90 146 / var(--tw-bg-opacity, 1));
+}
+
+.peer:checked ~ .peer-checked\:text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
 @media (min-width: 768px) {

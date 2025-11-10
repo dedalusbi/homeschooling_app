@@ -67,7 +67,7 @@
               <ion-card-content class="flex items-center space-x-3 p-3">
                 <div class="w-1.5 h-12 rounded-full" [style.background-color]="getSubjectColor(aula.subject_name)"></div>
                 <div class="flex-grow">
-                  <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}}</p>
+                  <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}} - {{formatTime(aula.end_time)}}</p>
                   <h3 class="font-semibold text-texto-profundo">{{aula.subject_name}}</h3>
                   <p class="text-xs text-texto-suave"> Aluno 1</p>
                 </div>
@@ -99,7 +99,7 @@
 
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="m-4">
-    <ion-fab-button (click)="openAddModal()" class="[--background:theme(colors.amarelo-foco)] text-texto-profundo shadow-lg">
+    <ion-fab-button (click)="openAddModal()" class="[--background:theme(colors.amarelo-foco)] rounded-full text-texto-profundo shadow-lg">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
 

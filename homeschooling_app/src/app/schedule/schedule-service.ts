@@ -17,5 +17,11 @@ export class ScheduleService {
     return this.http.get<{data: ScheduleEntry[]}>(`${this.apiUrl}/students/${studentId}/schedules`);
   }
 
+  createSchedule(aulaData: any): Observable<{data: ScheduleEntry[]}> {
+    return this.http.post<{data: ScheduleEntry[]}>(`${this.apiUrl}/schedules`,{
+      aula: aulaData
+    });
+  }
+
   
 }

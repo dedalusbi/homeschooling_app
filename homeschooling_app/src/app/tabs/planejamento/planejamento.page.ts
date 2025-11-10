@@ -144,13 +144,12 @@ export class PlanejamentoPage implements OnInit {
   //Função para abrir o modal de Adicionar Aula
   async openAddModal() {
 
-    const [alunos, materias] = await this.loadModalPrerequisites();
+    const alunos = this.students$.getValue();
 
     const modal = this.modalCtrl.create({
       component: AddAulaModalComponent,
       componentProps: {
         alunos: alunos,
-        materias: materias,
         alunoSelecionadoId: this.selectedStudentId
       },
       breakpoints: [0, 0.9, 1],
@@ -167,17 +166,7 @@ export class PlanejamentoPage implements OnInit {
 
   }
 
-  async loadModalPrerequisites(): Promise<[Student[] | null, Subject[]]> {
-    if (!this.selectedStudentId) return [null,[]];
-
-    //Carrega alunos (já temos) e matérias em paralelo
-    const alunos$ = this.students$.pipe(take(1));
-    const materias$ = this.studentService.getSubjects(this.selectedStudentId, 'active');
-
-    const [alunos, materiasResponse] = await lastValueFrom(forkJoin([alunos$, materias$]));
-    return [alunos, materiasResponse.data];
-  }
-
+  
 
   //Placeholder para o modal de edição
   async openEditModal(aula: ScheduleEntry) {

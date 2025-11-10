@@ -1,3 +1,104 @@
-<p>
-  add-aula-modal works!
-</p>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-title class="text-texto-profundo font-medium text-center">Adicionar Aula</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal(null)">
+        <ion-icon name="close" slot="icon-only" class="text-texto-suave"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="[--background:theme(colors.fundo-neutro)]">
+  <form [formGroup]="aulaForm" (ngSubmit)="onSubmit()" class="p-4 space-y-4">
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Aluno</ion-label>
+      <ion-select placeholder="Selecione o aluno" formControlName="student_id" interface="popover" class="text-base w-full">
+        <ion-select-option *ngFor="let aluno of alunos" [value]="aluno.id">{{aluno.name}}</ion-select-option>
+      </ion-select>
+      <div *ngIf="f['student_id'].invalid && f['student_id'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+        Aluno é obrigatório.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="flex justify-between items-center">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Matéria</ion-label>
+        <a (click)="goToManageSubjects()" class="text-xs text-azul-sereno font-medium cursor-pointer">Gerenciar Matérias</a>
+      </div>
+      <ion-select placeholder="{{(materiasLoading | async) ? 'Carregando...' : (f['student_id'].value ? 'Selecione a matéria' : 'Selecione um aluno.')}}" formControlName="subject_id" interface="popover"
+        class="text-base w-full">
+        <ion-select-option *ngFor="let materia of (materiasDisponiveis$ | async)" [value]="materia.id">{{materia.name}}</ion-select-option>
+        <ion-select-option *ngIf="!(materiasLoading | async) && (materiasDisponiveis$ | async)?.length === 0 && f['student_id'].value" [disabled]="true">Nenhuma matéria ativa encontrada.</ion-select-option>
+
+      </ion-select>
+      <div *ngIf="f['subject_id'].invalid && f['subject_id'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+        Matéria é obrigatório.
+      </div>
+    </div>
+
+
+    <div class="bg-white rounded-lg p-3 shadow-sm space-y-4">
+      <ion-label class="text-xs text-texto-suave ml-1">Agendamento</ion-label>
+      <div formArrayName="days_of_week" class="flex justify-between gap-1">
+        <label *ngFor="let day of weekDays; let i = index" class="flex-1">
+          <input type="checkbox" class="sr-only peer" [formControlName]="i">
+          <div class="w-full h-10 rounded-full bg-fundo-neutro text-texto-suave flex items-center justify-center font-medium cursor-pointer peer-checked:bg-azul-sereno peer-checked:text-white">
+            {{day.short}}
+          </div>
+        </label>
+      </div>
+      <div *ngIf="f['days_of_week'].hasError('minDaysSelected') && f['days_of_week'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+        Selecione pelo menos um dia.
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <div class="flex-1">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Início</ion-label>
+        <ion-input type="time" formControlName="start_time" class="text-base [--background:theme(colors.fundo-neutro)] rounded-lg px-3"></ion-input>
+        <div *ngIf="f['start_time'].invalid && f['start_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
+      </div>
+      <div class="flex-1">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Término</ion-label>
+        <ion-input type="time" formControlName="end_time" class="text-texto-profundo [--background:theme(colors.fundo-neutro)] rounded-lg px-3"></ion-input>
+        <div *ngIf="f['end_time'].invalid && f['end_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
+      </div>
+    </div>
+    <div *ngIf="aulaForm.hasError('endTimeAfterStart') && f['end_time'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+      Horário de término deve ser após o início.
+    </div>
+
+    <ion-item lines="none" class="[--background:theme(colors.fundo-neutro)] -bg-transparent -ml-3">
+      <ion-checkbox [checked]="true" [disabled]="true" slot="start"></ion-checkbox>
+      <ion-label class="text-texto-suave text-xs">Repetir semanalmente nos dias selecionados</ion-label>
+    </ion-item>
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label class="text-xs text-texto-suave mb-1 ml-1" position="stacked">Atribuir Responsável</ion-label>
+      <ion-select placeholder="Selecione o Responsável" interface="popover" class="text-base w-full">
+        <ion-select-option value="">(Usuário atual)</ion-select-option>
+        <ion-select-option value="">Outro Responsável</ion-select-option>
+      </ion-select>
+      <div *ngIf="f['assigned_guardian_id'].invalid && f['assigned_guardian_id'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">
+        Obrigatório.
+      </div>
+    </div>
+
+    <ion-button expand="block" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white shadow-md rounded-lg">
+      <ion-icon name="sparkles" slot="start"></ion-icon>
+      Gerar plano de aula com IA
+    </ion-button>
+
+    
+    <ion-button *ngIf="isEditMode" (click)="excluirAula()" expand="block" fill="clear" color="danger" class="text-sm">
+      Excluir Aula
+    </ion-button>
+      
+    <ion-button type="submit" expand="block" class="rounded-lg h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white" [disabled]="aulaForm.invalid">
+        Salvar
+    </ion-button>
+
+  </form>
+</ion-content>

@@ -5,15 +5,24 @@ import { Storage } from '@ionic/storage-angular';
 import { BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { jwtDecode } from 'jwt-decode';
 
 //Definindo uma chave constante para o token (boa prática)
 const AUTH_TOKEN_KEY = 'authToken';
+
+interface JwtPayload {
+  sub: string; //ID do usuário
+  exp: number; //data de expiração
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class Auth {
+
+  private _currentUserId: string | null = null;
 
   //URL da API definida nos arquivos environment
   private apiUrl = environment.apiUrl;
@@ -28,6 +37,9 @@ export class Auth {
     this.initializeAuth();
   }
 
+  public get currentUserId(): string | null {
+    return this._currentUserId;
+  }
 
   private async initializeAuth(): Promise<void> {
     await this.initStorage(); //Espera o storage iniciar
@@ -86,11 +98,11 @@ export class Auth {
         if (response.token) {
           await this.storeToken(response.token); //Chama o método para guardar o token
           //Após guardar o token, atualizamos o estado de autenticação
-          this.updateAuthState(true);
+          this.updateAuthState(true, response.token);
         } else {
           //Caso a API retorne sucesso mas sem token (improvável)
           console.error('Resposta de login inválida:', response);
-          this.updateAuthState(false);
+          this.updateAuthState(false, null);
         }
       })
     );
@@ -114,18 +126,44 @@ export class Auth {
     return token;
   }
 
-  private updateAuthState(isLoggedIn: boolean) {
+  private updateAuthState(isLoggedIn: boolean, token: string | null) {
     //Emite o novo estado para todos os subscritores
-    this.authState.next(isLoggedIn);
-    console.log('Estado de autenticação atualizado: ', isLoggedIn);
+
+    if (isLoggedIn && token) {
+      try {
+        const decodedToken: JwtPayload = jwtDecode(token);
+
+        if (Date.now() >= decodedToken.exp*1000) {
+          console.log("Token expirado encontrado, tratando como deslogado.");
+          this.updateAuthState(false, null);
+          return;
+        }
+
+        //Armazena o ID do usário
+        this._currentUserId = decodedToken.sub;
+        this.authState.next(true);
+        console.log('Estado de autenticação atualizado: true, UserID:', this._currentUserId);
+      } catch(error) {
+        console.error("Erro ao decodificar token, tratando como deslogado:",error);
+        this._currentUserId = null;
+        this.authState.next(false);
+      }
+
+    } else {
+      this._currentUserId = null;
+      this.authState.next(false);
+      console.log('Estado de autenticação autalizado: false');
+    }
+
   }
 
   //verifica se existe um token no storage quando o serviço inicia
   async checkInitialAuthState(): Promise<void> {
+
     const token = await this.getToken();
     console.log('checkInitialAuthState - Token recuperado: ', token);
     //Se encontrou um token, atualiza o estado para 'logado'
-    this.updateAuthState(!!token); //!! converte null/undefined para false, string para true
+    this.updateAuthState(!!token, token); //!! converte null/undefined para false, string para true
     console.log(`checkInitialAuthState - Estado atualizado para: ${!!token}`);
   }
 
@@ -134,9 +172,9 @@ export class Auth {
     const storage = await this.getStorage();
     
     //Remove o token do Ionic Storage
-    await this.storage.remove(AUTH_TOKEN_KEY);
+    await storage.remove(AUTH_TOKEN_KEY);
     //Atualiza o estado de autenticação para não logado
-    this.updateAuthState(false);
+    this.updateAuthState(false, null);
     //Redireciona o usuário para a página de login (ou boas-vindas)
     //MapsRoot limpa o histórico de navegação
     this.navCtrl.navigateRoot('/auth/login', {animated: true, animationDirection: 'back'})
