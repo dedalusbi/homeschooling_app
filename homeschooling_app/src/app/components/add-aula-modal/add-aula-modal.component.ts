@@ -4,7 +4,7 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule
 import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, sparkles } from 'ionicons/icons';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, first } from 'rxjs';
 import { Auth } from 'src/app/auth/auth';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
 import { Student } from 'src/app/models/student.model';
@@ -197,13 +197,50 @@ export class AddAulaModalComponent  implements OnInit {
         error: async (err) => {
           await loading.dismiss();
           console.error("Erro ao criar aula:",err);
-          await this.presentAlert('Erro', 'Não foi possível salvar a aula.');
+          let header = "Erro ao Salvar";
+          let message = "Não foi possível salvar a aula. Tente novamente.";
+
+          if (err.status == 409 && err.error?.error?.includes("Conflito de horário")) {
+            header="Conflito de horário";
+            message = this.formatConflictError(err.error.details);
+          } else if (err.status == 422) {
+            if (err.error?.errors) {
+              message = Object.values(err.error.errors).flat().join(' ');
+            } else{
+              message="Por favor, verifique os campos. O horário de término deve ser após o início.";
+            }
+          }
+
+          await this.presentAlert(header, message);
         }
       });
     }
 
+  }
+
+  private formatConflictError(conflicts: any[]): string {
+    if (!conflicts || conflicts.length === 0) {
+      return 'Foi detectado um conflito de horário com uma aula existente;';
+    }
+
+    const dayMap = ["Domingo", "Segunda-feira","Terça-feira","Quarta-feira",
+      "Quinta-feira","Sexta-feira","Sábado"];
+    
+    const firstConflict = conflicts[0];
+    const dayName = dayMap[firstConflict.day_of_week] || 'Um dia';
+    const subjectName = firstConflict.subject_name;
+    const startTime = firstConflict.start_time.substring(0,5);
+
+    let message = `Conflito detectado: A aula de "${subjectName}" na ${dayName} às ${startTime} já está agendada.`;
+
+    if (conflicts.length > 1) {
+      message += `(e mais ${conflicts.length -1} outro(s) conflito(s)).`;
+    }
+
+    return message;
 
   }
+
 
 
   dismissModal(data: any, role: 'confirm' | 'cancel' = 'cancel') {
