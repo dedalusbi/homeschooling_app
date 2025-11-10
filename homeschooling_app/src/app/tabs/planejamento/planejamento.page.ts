@@ -8,7 +8,7 @@ import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 import { addIcons } from 'ionicons';
-import { add, bookmark, calendar, calendarClear, chevronBack, chevronForward, notifications } from 'ionicons/icons';
+import { add, bookmark, calendar, calendarClear, chevronBack, chevronForward, notifications, star } from 'ionicons/icons';
 import { group } from '@angular/animations';
 import { Subject } from 'src/app/models/subject.model';
 import { AddAulaModalComponent } from 'src/app/components/add-aula-modal/add-aula-modal.component';
@@ -32,6 +32,10 @@ type DayOfWeek = {label: string, value: number};
 })
 export class PlanejamentoPage implements OnInit {
 
+  currentDate = new Date();
+  weekStart: Date = new Date();
+  weekEnd: Date = new Date();
+  weekDisplay: string = '';
   students$ = new BehaviorSubject<Student[]>([]); //Lista de alunos para o filtro
   selectedStudentId: string | null = null; //Aluno selecionado no filtro
   scheduleGroupedByDay: ScheduleGroup | null = null;
@@ -53,7 +57,6 @@ export class PlanejamentoPage implements OnInit {
 
   //Lógica de exibição da semana
   currentWeekOffset=0;
-  weekDisplay = "18 a 24 de Outubro de 2025";
 
 
 
@@ -69,9 +72,12 @@ export class PlanejamentoPage implements OnInit {
       'calendar': calendar,
       'calendar-clear': calendarClear
     });
+
+    this.updateWeekDisplay();
   }
 
   ngOnInit() {
+   
     this.loadStudents();
   }
 
@@ -109,15 +115,17 @@ export class PlanejamentoPage implements OnInit {
 
     this.isLoading=true;
     this.scheduleIsEmpty=false;
+    this.scheduleGroupedByDay={};
+
+    const weekStartStr = this.datePipe.transform(this.weekStart, 'yyyy-MM-dd')!;
+    const weekEndStr = this.datePipe.transform(this.weekEnd, 'yyyy-MM-dd')!;
 
     let scheduleObservable: Observable<{data: ScheduleEntry[]}>;
 
     if (this.selectedStudentId=== "all") {
-      console.log('entrou em all');
-      scheduleObservable = this.scheduleService.getScheduleForAllStudents(this.onlyMine);
+      scheduleObservable = this.scheduleService.getScheduleForAllStudents(this.onlyMine, weekStartStr, weekEndStr);
     } else {
-      console.log("entrou no else");
-      scheduleObservable = this.scheduleService.getScheduleForStudent(this.selectedStudentId, this.onlyMine);
+      scheduleObservable = this.scheduleService.getScheduleForStudent(this.selectedStudentId, this.onlyMine, weekStartStr, weekEndStr);
     }
 
 
@@ -134,6 +142,26 @@ export class PlanejamentoPage implements OnInit {
       }
     });
 
+  }
+
+  updateWeekDisplay() {
+    const today = new Date(this.currentDate);
+    const dayOfWeek = today.getDay();
+
+    this.weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - dayOfWeek);
+    this.weekEnd = new Date(this.weekStart.getFullYear(), this.weekStart.getMonth(), this.weekStart.getDate() +6);
+
+    const startDay = this.datePipe.transform(this.weekStart, 'd');
+    const startMonth = this.datePipe.transform(this.weekStart, 'MMM');
+    const endDay = this.datePipe.transform(this.weekEnd, 'd');
+    const endMonth = this.datePipe.transform(this.weekEnd, 'MMM');
+    const year = this.datePipe.transform(this.weekEnd, 'yyyy');
+
+    if (startMonth === endMonth) {
+      this.weekDisplay = `${startDay} a ${endDay} de ${startMonth} ${year}`;
+    } else {
+      this.weekDisplay = `${startDay} ${startMonth} a ${endDay} ${endMonth} ${year}`;
+    }
   }
 
 
@@ -192,7 +220,9 @@ export class PlanejamentoPage implements OnInit {
 
   //Funções auxiliares de UI
   changeWeek(direction: number) {
-    console.log("Mudar semana: ", direction);
+    this.currentDate.setDate(this.currentDate.getDate()+(7*direction));
+    this.updateWeekDisplay();
+    this.loadSchedule();
   }
 
   saveAsTemplate() {
@@ -200,8 +230,9 @@ export class PlanejamentoPage implements OnInit {
   }
 
   getDayDate(dayOfWeek: number) {
-    //TODO lógica para calcular a data real;
-    return new Date();
+    const date = new Date(this.weekStart);
+    date.setDate(date.getDate()+dayOfWeek);
+    return date;
   }
 
   formatTime(time: string) {

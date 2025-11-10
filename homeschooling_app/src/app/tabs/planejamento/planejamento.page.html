@@ -73,7 +73,8 @@
                 </div>
                 <div class="flex items-center space-x-2">
                   <ion-avatar class="w-6 h-6 border border-linha-sutil">
-                    <img src="assets/avatars/placeholder.png">
+                    <img [src]="'assets/avatars/'+(aula.responsible_avatar_id || 'placeholder.png')" alt="avatar do responsável"
+                      class="rounded-full w-full h-full object-cover bg-gray-200">
                   </ion-avatar>
                   <ion-chip [color]="aula.status === 'Concluída' ? 'success' : 'warning'" class="text-xs h-6 px-2 m-0">
                     {{aula.status || 'Pendente'}}

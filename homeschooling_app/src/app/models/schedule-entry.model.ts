@@ -9,6 +9,6 @@ export interface ScheduleEntry {
   day_of_week: number;
   start_time: string;
   end_time: string;
-  responsible_avatar?: string;
+  responsible_avatar_id: string | null;
   status?: 'Pendente' | 'Concluída';
 }

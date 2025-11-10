@@ -13,12 +13,13 @@ export class ScheduleService {
 
   constructor(private http: HttpClient) {}
 
-  getScheduleForStudent(studentId: string, onlyMine: boolean): Observable<{data: ScheduleEntry[]}> {
+  getScheduleForStudent(studentId: string, onlyMine: boolean, weekStart: string, weekEnd: string): Observable<{data: ScheduleEntry[]}> {
     
     let params = new HttpParams();
-    if (onlyMine) {
-      params = params.set('filter[only_mine]', 'true');
-    }
+    params = params.set('filter[only_mine]', String(onlyMine));
+    params = params.set('filter[week_start]', weekStart);
+    params = params.set('filter[week_end]', weekEnd);
+    
     
     return this.http.get<{data: ScheduleEntry[]}>(`${this.apiUrl}/students/${studentId}/schedules`, {params});
   }
@@ -30,12 +31,12 @@ export class ScheduleService {
   }
 
 
-  getScheduleForAllStudents(onlyMine: boolean): Observable<{data: ScheduleEntry[]}> {
+  getScheduleForAllStudents(onlyMine: boolean, weekStart: string, weekEnd: string): Observable<{data: ScheduleEntry[]}> {
 
     let params = new HttpParams();
-    if (onlyMine) {
-      params = params.set('filter[only_mine]', 'true');
-    }
+    params = params.set('filter[only_mine]', String(onlyMine));
+    params = params.set('filter[week_start]', weekStart);
+    params = params.set('filter[week_end]', weekEnd);
 
     return this.http.get<{data: ScheduleEntry[]}>(`${this.apiUrl}/schedules/all`, {params});
   }
