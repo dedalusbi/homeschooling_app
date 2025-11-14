@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, sparkles } from 'ionicons/icons';
 import { BehaviorSubject, first } from 'rxjs';
@@ -28,7 +28,8 @@ const WEEK_DAYS_DEF = [
   templateUrl: './add-aula-modal.component.html',
   styleUrls: ['./add-aula-modal.component.scss'],
   imports: [CommonModule, ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-    IonIcon, IonContent, IonLabel, IonSelectOption, IonInput, IonItem, IonCheckbox, IonSelect
+    IonIcon, IonContent, IonLabel, IonSelectOption, IonInput, IonItem, IonCheckbox, IonSelect,
+    IonModal, IonDatetime
   ]
 })
 export class AddAulaModalComponent  implements OnInit {
@@ -47,6 +48,7 @@ export class AddAulaModalComponent  implements OnInit {
 
   get f() {return this.aulaForm.controls;}
   get daysOfWeekArray() {return this.aulaForm.get('days_of_week') as FormArray;}
+
 
   constructor(
     private fb: FormBuilder,
@@ -72,8 +74,10 @@ export class AddAulaModalComponent  implements OnInit {
       days_of_week: this.fb.array(daysOfWeekControls, [this.minDaysSelectedValidator(1)]),
       start_time: ['', [Validators.required]],
       end_time: ['', [Validators.required]],
+      start_date: [null, [Validators.required]],
+      end_date: [null],
       assigned_guardian_id: [null, [Validators.required]], //TODO carregar responsáveis
-    }, {validators: this.endTimeAfterStartValidator});
+    }, {validators: [this.endTimeAfterStartValidator, this.endDateAfterStartDateValidator]});
 
   }
 
@@ -156,6 +160,15 @@ export class AddAulaModalComponent  implements OnInit {
 
   }
 
+  endDateAfterStartDateValidator(form: AbstractControl): ValidationErrors | null {
+    const start = form.get('start_date')?.value;
+    const end = form.get('end_date')?.value;
+    if (start && end && new Date(end) < new Date(start)) {
+      return { endDateAfterStartDateValidator: true};
+    }
+    return null;
+  }
+
   async onSubmit() {
 
     if (this.aulaForm.invalid) {
@@ -172,12 +185,18 @@ export class AddAulaModalComponent  implements OnInit {
     const selectedDays = this.weekDays.map((day, index) => formValue.days_of_week[index] ? day.value : -1)
                                         .filter(value => value !== -1);
 
+
+    const startDateFormatted = formValue.start_date ? new Date(formValue.start_date).toISOString().split('T')[0] : null;
+    const endDateFormatted = formValue.end_date ? new Date(formValue.end_date).toISOString().split('T')[0] : null;
+
     //prepara o payload para a API
     const payload = {
       student_id: formValue.student_id,
       subject_id: formValue.subject_id,
       start_time: formValue.start_time,
       end_time: formValue.end_time,
+      start_date: startDateFormatted,
+      end_date: endDateFormatted,
       assigned_guardian_id: formValue.assigned_guardian_id,
       days_of_week: selectedDays,
     };            
@@ -263,5 +282,7 @@ export class AddAulaModalComponent  implements OnInit {
     });
     (await alert).present();
   }
+
+
 
 }

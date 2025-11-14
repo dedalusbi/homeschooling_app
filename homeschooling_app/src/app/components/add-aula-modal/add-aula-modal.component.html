@@ -41,6 +41,69 @@
 
     <div class="bg-white rounded-lg p-3 shadow-sm space-y-4">
       <ion-label class="text-xs text-texto-suave ml-1">Agendamento</ion-label>
+
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Início das Aulas *</ion-label>
+          <ion-item button="true" detail="false" lines="none" id="open-start-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
+            <ion-label class="text-sm" [class.text-texto-suave]="!f['start_date'].value">
+              {{f['start_date'].value ? (f['start_date'].value | date:'dd/MM/yyyy' ) : 'Selecione'}}
+            </ion-label>
+            <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
+          </ion-item>
+          <ion-modal trigger="open-start-date-picker" [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime #startDatePicker presentation="date" formControlName="start_date" (ionChange)="f['start_date'].markAsDirty()" doneText="Ok" cancelText="Cancelar">
+                <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="startDatePicker.reset(); startDatePicker.confirm(true)">
+                    Limpar
+                  </ion-button>
+                  <ion-button color="medium" (click)="startDatePicker.cancel(true)">
+                    Cancelar
+                  </ion-button>
+                  <ion-button color="primary" (click)="startDatePicker.confirm(true)">
+                    OK
+                  </ion-button>
+                </ion-buttons>
+              </ion-datetime>
+            </ng-template>
+          </ion-modal>
+          <div *ngIf="f['start_date'].invalid && f['start_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">Obrigatório</div>
+        </div>
+
+        <div class="flex-1">
+          <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Término (opcional)</ion-label>
+          <ion-item button="true" detail="false" lines="none" id="open-end-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
+            <ion-label class="text-sm" [class.text-texto-suave]="!f['end_date'].value">
+              {{f['end_date'].value ? (f['end_date'].value | date:'dd/MM/yyyy' ) : 'Selecione'}}
+            </ion-label>
+            <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
+          </ion-item>
+          <ion-modal trigger="open-end-date-picker" [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime #endDatePicker presentation="date" formControlName="end_date" doneText="Ok" cancelText="Cancelar" [min]="f['start_date'].value || ''"
+              (ionChange)="f['end_date'].markAsDirty()">
+                <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="endDatePicker.reset(); endDatePicker.confirm(true)">
+                    Limpar
+                  </ion-button>
+                  <ion-button color="medium" (click)="endDatePicker.cancel(true)">
+                    Cancelar
+                  </ion-button>
+                  <ion-button color="primary" (click)="endDatePicker.confirm(true)">
+                    OK
+                  </ion-button>
+                </ion-buttons>
+              </ion-datetime>
+            </ng-template>
+          </ion-modal>
+          <div *ngIf="aulaForm.hasError('endDateAfterStartDate') && f['end_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            Date de término deve ser após a data de início.
+          </div>
+        </div>
+
+      </div>
+
       <div formArrayName="days_of_week" class="flex justify-between gap-1">
         <label *ngFor="let day of weekDays; let i = index" class="flex-1">
           <input type="checkbox" class="sr-only peer" [formControlName]="i">
