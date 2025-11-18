@@ -41,4 +41,20 @@ export class ScheduleService {
     return this.http.get<{data: ScheduleEntry[]}>(`${this.apiUrl}/schedules/all`, {params});
   }
   
+  updateSchedule(id: string, aulaData: any): Observable<{data: ScheduleEntry}> {
+    return this.http.put<{data: ScheduleEntry}>(`${this.apiUrl}/schedules/${id}`, {aula: aulaData});
+  }
+
+
+  createScheduleException(originalId: string, exceptionDate: string, newAulaData: any): Observable<{data: ScheduleEntry}> {
+    const payload = {
+      ...newAulaData,
+      exception_date: exceptionDate
+    };
+    return this.http.post<{data: ScheduleEntry}>(
+      `${this.apiUrl}/schedules/${originalId}/exception`,
+      {aula: payload}
+    );
+  }
+
 }

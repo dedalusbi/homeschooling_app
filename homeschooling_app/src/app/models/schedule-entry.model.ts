@@ -11,4 +11,9 @@ export interface ScheduleEntry {
   end_time: string;
   responsible_avatar_id: string | null;
   status?: 'Pendente' | 'Concluída';
+  is_recurring: boolean;
+  start_date: string | null;
+  end_date: string | null;
+  specific_date: string | null;
+  excluded_dates?: string[];
 }

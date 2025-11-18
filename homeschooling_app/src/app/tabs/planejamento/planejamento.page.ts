@@ -132,6 +132,8 @@ export class PlanejamentoPage implements OnInit {
     scheduleObservable.subscribe({
       next: (res) => {
         this.scheduleGroupedByDay = this.groupScheduleByDay(res.data);
+        console.log("this.scheduleGroupedByDay = ");
+        console.dir(this.scheduleGroupedByDay);
         this.scheduleIsEmpty = res.data.length ===0;
         this.isLoading=false;
       },
@@ -168,19 +170,57 @@ export class PlanejamentoPage implements OnInit {
   private groupScheduleByDay(schedule: ScheduleEntry[]): ScheduleGroup {
     const grouped: ScheduleGroup = {};
 
+    this.weekDays.forEach(day => {
+      grouped[day.value] = [];
+    });
+
     for (const aula of schedule) {
-      if (!grouped[aula.day_of_week]){
-        grouped[aula.day_of_week] = [];
+      console.log("Aula:");
+      console.dir(aula);
+      let key: number; //o dia da semana onde a aula deve ir
+
+      let occurrenceDateStr: string | null = null;
+
+      if (aula.is_recurring) {
+
+        const currentOccurrenceDate = this.getDateForDayOfWeek(aula.day_of_week);
+        const dateString = this.datePipe.transform(currentOccurrenceDate, 'yyy-MM-dd');
+
+        if (dateString && aula.excluded_dates && aula.excluded_dates.includes(dateString)) {
+          continue;
+        }
+
+
+        //LÓGICA PARA AULAS RECORRENTES
+        key = aula.day_of_week;
+      } else {
+        // LÓGICA PARA AULAS ÚNICAS
+        if (!aula.specific_date) {
+          console.error("Aula única recebida sem 'specific date'");
+          continue;
+        }
+        const date = new Date(aula.specific_date);
+        key = date.getUTCDay();
       }
-      //TODO Lógica para status concluída/pendente
-      aula.status='Pendente';
-      grouped[aula.day_of_week].push(aula);
+     
+      if (grouped[key] != undefined){
+        aula.status = 'Pendente';
+        grouped[key].push(aula);
+      }
     }
+
     //Ordena as aulas dentro de cada dia pelo horário de início
     for (const day in grouped) {
       grouped[day].sort((a,b) => a.start_time.localeCompare(b.start_time));
     }
     return grouped;
+  }
+
+
+  getDateForDayOfWeek(dayOfWeek: number): Date {
+    const date = new Date(this.weekStart);
+    date.setDate(date.getDate()+dayOfWeek);
+    return date;
   }
 
 
@@ -214,7 +254,38 @@ export class PlanejamentoPage implements OnInit {
 
   //Placeholder para o modal de edição
   async openEditModal(aula: ScheduleEntry) {
-    console.log("Abrir modal de edição para: ", aula);
+    const alunos = this.students$.getValue();
+
+    let selectedDateStr='';
+
+    if (aula.is_recurring && aula.day_of_week !== null) {
+      const dateObj = this.getDateForDayOfWeek(aula.day_of_week);
+      selectedDateStr = this.datePipe.transform(dateObj, 'yyyy-MM-dd') || '';
+    } else if (aula.specific_date) {
+      selectedDateStr = aula.specific_date;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: AddAulaModalComponent,
+      componentProps: {
+        aulaParaEditar: aula,
+        alunos: alunos,
+        alunoSelecionadoId: aula.student_id,
+        selectedDate: selectedDateStr
+      },
+      breakpoints: [0, 0.9, 1],
+      initialBreakpoint: 0.9,
+      cssClass: 'add-aula-modal'
+    });
+
+    await modal.present();
+
+    const {data, role} = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      this.loadSchedule();
+    }
+
   }
 
 

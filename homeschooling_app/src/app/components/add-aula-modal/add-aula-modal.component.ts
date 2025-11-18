@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonDatetime, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, sparkles } from 'ionicons/icons';
 import { BehaviorSubject, first } from 'rxjs';
@@ -29,7 +29,7 @@ const WEEK_DAYS_DEF = [
   styleUrls: ['./add-aula-modal.component.scss'],
   imports: [CommonModule, ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonIcon, IonContent, IonLabel, IonSelectOption, IonInput, IonItem, IonCheckbox, IonSelect,
-    IonModal, IonDatetime
+    IonModal, IonDatetime, IonFooter, IonRadioGroup, IonRadio, FormsModule
   ]
 })
 export class AddAulaModalComponent  implements OnInit {
@@ -37,6 +37,7 @@ export class AddAulaModalComponent  implements OnInit {
   @Input() alunos: Student[] = [];
   @Input() alunoSelecionadoId: string | null = null;
   @Input() aulaParaEditar: ScheduleEntry | null = null;
+  @Input() selectedDate: string = "";
 
 
   materiasDisponiveis$ = new BehaviorSubject<Subject[]>([]);
@@ -45,6 +46,9 @@ export class AddAulaModalComponent  implements OnInit {
   aulaForm: FormGroup;
   weekDays = WEEK_DAYS_DEF;
   isEditMode = false;
+  public loggedInUserId: string | null = null;
+
+  editType: 'single' | 'series' = 'series';
 
   get f() {return this.aulaForm.controls;}
   get daysOfWeekArray() {return this.aulaForm.get('days_of_week') as FormArray;}
@@ -71,48 +75,64 @@ export class AddAulaModalComponent  implements OnInit {
     this.aulaForm = this.fb.group({
       student_id: [null, [Validators.required]],
       subject_id: [null, [Validators.required]],
-      days_of_week: this.fb.array(daysOfWeekControls, [this.minDaysSelectedValidator(1)]),
       start_time: ['', [Validators.required]],
       end_time: ['', [Validators.required]],
+      assigned_guardian_id: [null, [Validators.required]],
+      is_recurring: [true],
+      days_of_week: this.fb.array(daysOfWeekControls, [this.minDaysSelectedValidator(1)]),
       start_date: [null, [Validators.required]],
       end_date: [null],
-      assigned_guardian_id: [null, [Validators.required]], //TODO carregar responsáveis
+      specific_date: [null],
+      
+      
     }, {validators: [this.endTimeAfterStartValidator, this.endDateAfterStartDateValidator]});
+
+
+    this.setupConditionalValidators();
 
   }
 
   ngOnInit() {
+
+    this.loggedInUserId = this.auth.currentUserId;
     if (this.aulaParaEditar){
       //Modo Edição
       this.isEditMode=true;
+      const aula = this.aulaParaEditar;
+      const isRecurring = aula.is_recurring;
+      this._updateValidators(isRecurring);
       this.aulaForm.patchValue({
-        student_id: this.aulaParaEditar.student_id,
-        subject_id: this.aulaParaEditar.subject_id,
-        start_time: this.aulaParaEditar.start_time,
-        end_time: this.aulaParaEditar.end_time,
-        assigned_guardian_id: this.aulaParaEditar.assigned_guardian_id,
+        student_id: aula.student_id,
+        subject_id: aula.subject_id,
+        start_time: aula.start_time.substring(0,5),
+        end_time: aula.end_time.substring(0,5),
+        assigned_guardian_id: aula.assigned_guardian_id,
+        is_recurring: isRecurring,
+        start_date: isRecurring ? (aula.start_date ? new Date(aula.start_date + 'T00:00:00').toISOString() : null) : null,
+        end_date: isRecurring ? (aula.end_date ? new Date(aula.end_date + 'T00:00:00').toISOString() : null) : null,
+        specific_date: !isRecurring ? (aula.specific_date ? new Date(aula.specific_date + 'T00:00:00').toISOString() : null) : null
       });
-      this.daysOfWeekArray.at(this.aulaParaEditar.day_of_week).setValue(true);
 
-      if (this.aulaParaEditar.student_id) {
-        this.loadMateriasParaAluno(this.aulaParaEditar.student_id);
+      if (isRecurring && aula.day_of_week != null) {
+        const daysCheckBoxes = this.weekDays.map(day => day.value === aula.day_of_week);
+        this.daysOfWeekArray.setValue(daysCheckBoxes);
       }
-
-      this.f['student_id'].disable();
 
     } else {
       // MODO Criação
       this.isEditMode = false;
-      const loggedInUserId = this.auth.currentUserId;
-
+     
       this.aulaForm.patchValue({
         student_id: this.alunoSelecionadoId,
-        assigned_guardian_id: loggedInUserId
+        assigned_guardian_id: this.loggedInUserId,
+        is_recurring: true
       });
 
       if (this.alunoSelecionadoId) {
         this.loadMateriasParaAluno(this.alunoSelecionadoId);
       }
+
+      this._updateValidators(true);
 
     }
 
@@ -124,9 +144,41 @@ export class AddAulaModalComponent  implements OnInit {
         this.materiasDisponiveis$.next([]);
       }
     });
-
   }
 
+
+  setupConditionalValidators() {
+    const isRecurringControl = this.f['is_recurring'];
+    isRecurringControl.valueChanges.subscribe(isRecurring => {
+      this._updateValidators(isRecurring);
+    });
+  }
+
+
+  private _updateValidators(isRecurring: boolean) {
+    
+    const daysArray = this.daysOfWeekArray;
+    const startDateControl = this.f['start_date'];
+    const specificDateControl = this.f['specific_date'];
+
+      if (isRecurring) {
+        startDateControl.setValidators([Validators.required]);
+        daysArray.setValidators([this.minDaysSelectedValidator(1)]);
+        specificDateControl.clearValidators();
+        specificDateControl.setValue(null);
+      } else {
+        specificDateControl.setValidators([Validators.required]);
+        
+        startDateControl.clearValidators();
+        startDateControl.setValue(null);
+        daysArray.clearValidators();
+        daysArray.controls.forEach(control => control.setValue(false));
+      }
+
+      startDateControl.updateValueAndValidity();
+      daysArray.updateValueAndValidity();
+      specificDateControl.updateValueAndValidity();
+  }
 
   loadMateriasParaAluno(alunoId: string) {
     this.materiasLoading.next(true);
@@ -181,33 +233,95 @@ export class AddAulaModalComponent  implements OnInit {
 
     const formValue = this.aulaForm.getRawValue();
 
-    //Converte o array de boleanos para um array de números
-    const selectedDays = this.weekDays.map((day, index) => formValue.days_of_week[index] ? day.value : -1)
-                                        .filter(value => value !== -1);
-
-
-    const startDateFormatted = formValue.start_date ? new Date(formValue.start_date).toISOString().split('T')[0] : null;
-    const endDateFormatted = formValue.end_date ? new Date(formValue.end_date).toISOString().split('T')[0] : null;
+  
 
     //prepara o payload para a API
-    const payload = {
+    let payload:any = {
       student_id: formValue.student_id,
       subject_id: formValue.subject_id,
+      assigned_guardian_id: formValue.assigned_guardian_id,
       start_time: formValue.start_time,
       end_time: formValue.end_time,
-      start_date: startDateFormatted,
-      end_date: endDateFormatted,
-      assigned_guardian_id: formValue.assigned_guardian_id,
-      days_of_week: selectedDays,
+      is_recurring: formValue.is_recurring
     };            
     
+    if (formValue.is_recurring) {
+      const selectedDays = this.weekDays.map((day, index) => formValue.days_of_week[index] ? day.value : -1)
+                                        .filter(value => value !== -1);
+      const startDateFormatted = formValue.start_date ? new Date(formValue.start_date).toISOString().split('T')[0] : null;
+      const endDateFormatted = formValue.end_date ? new Date(formValue.end_date).toISOString().split('T')[0] : null;
+      payload = {
+        ...payload,
+        days_of_week: selectedDays,
+        start_date: startDateFormatted,
+        end_date: endDateFormatted,
+        is_recurring: true,
+        specific_date: null,
+      };
+    } else {
+      const specificDateFormatted = formValue.specific_date ? new Date(formValue.specific_date).toISOString().split('T')[0] : null;
+      payload = {
+        ...payload,
+        specific_date: specificDateFormatted,
+        start_date: null,
+        days_of_week: [],
+        day_of_week: null,
+        is_recurring: false,
+        end_date: null
+      };
+    }
+
+    console.log("Payload a enviar: ");
+    console.dir(payload);
+
+
     if (this.isEditMode && this.aulaParaEditar) {
-      //LÓGICA DE ATUALIZAÇÃO
-      console.log("Atualizar Aula:", this.aulaParaEditar.id, payload);
-      await loading.dismiss();
-      this.dismissModal(payload, 'confirm');
+
+      if (this.aulaParaEditar.is_recurring && this.editType === 'single') {
+        //Modo EXCEÇÃO
+        const dateOfException = this.selectedDate;
+
+        this.scheduleService.createScheduleException(
+          this.aulaParaEditar.id,
+          dateOfException,
+          payload
+        ).subscribe({
+          next: async (res) => {
+            await loading.dismiss();
+            this.dismissModal(res.data, 'confirm');
+          },
+          error: async (err) => {
+            await loading.dismiss();
+            console.error("Erro ao atualizar aula: ", err);
+            let message = "Não foi possível atualizar a aula.";
+            if (err.status === 409 && err.error?.error?.includes("Conflito")) {
+              message = this.formatConflictError(err.error.details);
+            }
+            await this.presentAlert('Erro', message);
+          }
+        });
+
+      } else {
+        this.scheduleService.updateSchedule(this.aulaParaEditar.id, payload).subscribe({
+        next: async (res) => {
+          await loading.dismiss();
+          this.dismissModal(res.data, 'confirm');
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          console.error("Erro ao atualizar aula: ", err);
+          let message = "Não foi possível atualizar a aula.";
+          if (err.status === 409 && err.error?.error?.includes("Conflito")) {
+            message = this.formatConflictError(err.error.details);
+          }
+          await this.presentAlert('Erro', message);
+        }
+      });
+      }
+
     } else {
       //LÓGICA DE CRIAÇÃO
+      
       this.scheduleService.createSchedule(payload).subscribe({
         next: async (res) => {
           await loading.dismiss();

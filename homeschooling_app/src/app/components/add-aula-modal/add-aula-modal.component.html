@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
-    <ion-title class="text-texto-profundo font-medium text-center">Adicionar Aula</ion-title>
+    <ion-title class="text-texto-profundo font-medium text-center">{{ isEditMode ? 'Editar Aula' : 'Adicionar Aula' }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="dismissModal(null)">
         <ion-icon name="close" slot="icon-only" class="text-texto-suave"></ion-icon>
@@ -9,11 +9,11 @@
   </ion-toolbar>
 </ion-header>
 
-
 <ion-content class="[--background:theme(colors.fundo-neutro)]">
   <form [formGroup]="aulaForm" (ngSubmit)="onSubmit()" class="p-4 space-y-4">
+
     <div class="bg-white rounded-lg p-3 shadow-sm">
-      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Aluno</ion-label>
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Aluno *</ion-label>
       <ion-select placeholder="Selecione o aluno" formControlName="student_id" interface="popover" class="text-base w-full">
         <ion-select-option *ngFor="let aluno of alunos" [value]="aluno.id">{{aluno.name}}</ion-select-option>
       </ion-select>
@@ -24,125 +24,151 @@
 
     <div class="bg-white rounded-lg p-3 shadow-sm">
       <div class="flex justify-between items-center">
-        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Matéria</ion-label>
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Matéria *</ion-label>
         <a (click)="goToManageSubjects()" class="text-xs text-azul-sereno font-medium cursor-pointer">Gerenciar Matérias</a>
       </div>
-      <ion-select placeholder="{{(materiasLoading | async) ? 'Carregando...' : (f['student_id'].value ? 'Selecione a matéria' : 'Selecione um aluno.')}}" formControlName="subject_id" interface="popover"
-        class="text-base w-full">
+      <ion-select placeholder="{{(materiasLoading | async) ? 'A carregar...' : (f['student_id'].value ? 'Selecione a matéria' : 'Selecione um aluno')}}"
+                  formControlName="subject_id" interface="popover"
+                  class="text-base w-full">
         <ion-select-option *ngFor="let materia of (materiasDisponiveis$ | async)" [value]="materia.id">{{materia.name}}</ion-select-option>
         <ion-select-option *ngIf="!(materiasLoading | async) && (materiasDisponiveis$ | async)?.length === 0 && f['student_id'].value" [disabled]="true">Nenhuma matéria ativa encontrada.</ion-select-option>
-
       </ion-select>
       <div *ngIf="f['subject_id'].invalid && f['subject_id'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
-        Matéria é obrigatório.
+        Matéria é obrigatória.
       </div>
     </div>
-
 
     <div class="bg-white rounded-lg p-3 shadow-sm space-y-4">
       <ion-label class="text-xs text-texto-suave ml-1">Agendamento</ion-label>
+      
+      <ion-item lines="none" class="[--background:theme(colors.fundo-neutro)] -bg-transparent -ml-3">
+        <ion-checkbox formControlName="is_recurring" slot="start"></ion-checkbox>
+        <ion-label class="text-texto-suave text-sm">Repetir semanalmente</ion-label>
+      </ion-item>
+
+      <ng-container *ngIf="f['is_recurring'].value">
+        <div>
+          <ion-label position="stacked" class="text-xs text-texto-suave mb-2 ml-1">Dias da Semana *</ion-label>
+          <div formArrayName="days_of_week" class="flex justify-between gap-1">
+            <label *ngFor="let day of weekDays; let i = index" class="flex-1">
+              <input type="checkbox" class="sr-only peer" [formControlName]="i">
+              <div class="w-full h-10 rounded-lg bg-fundo-neutro text-texto-suave flex items-center justify-center font-medium cursor-pointer peer-checked:bg-azul-sereno peer-checked:text-white">
+                {{day.short}}
+              </div>
+            </label>
+          </div>
+          <div *ngIf="f['days_of_week'].hasError('minDaysSelected') && f['days_of_week'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+            Selecione pelo menos um dia.
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Início das Aulas *</ion-label>
+            <ion-item button="true" detail="false" lines="none" id="open-start-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
+              <ion-label class="text-sm" [class.text-texto-suave]="!f['start_date'].value">
+                {{f['start_date'].value ? (f['start_date'].value | date:'dd/MM/yyyy' ) : 'Selecione'}}
+              </ion-label>
+              <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
+            </ion-item>
+            <ion-modal trigger="open-start-date-picker" [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime #startDatePicker presentation="date" formControlName="start_date" (ionChange)="f['start_date'].markAsDirty()" doneText="Ok" cancelText="Cancelar">
+                  <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="startDatePicker.reset(); startDatePicker.confirm(true)">Limpar</ion-button>
+                    <ion-button color="medium" (click)="startDatePicker.cancel(true)">Cancelar</ion-button>
+                    <ion-button color="primary" (click)="startDatePicker.confirm(true)">OK</ion-button>
+                  </ion-buttons>
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+            <div *ngIf="f['start_date'].invalid && f['start_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">Obrigatório</div>
+          </div>
+          <div class="flex-1">
+            <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Término (opcional)</ion-label>
+            <ion-item button="true" detail="false" lines="none" id="open-end-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
+              <ion-label class="text-sm" [class.text-texto-suave]="!f['end_date'].value">
+                {{f['end_date'].value ? (f['end_date'].value | date:'dd/MM/yyyy' ) : 'Sem data final'}}
+              </ion-label>
+              <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
+            </ion-item>
+            <ion-modal trigger="open-end-date-picker" [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime #endDatePicker presentation="date" formControlName="end_date" (ionChange)="f['end_date'].markAsDirty()" [min]="f['start_date'].value || ''">
+                  <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="endDatePicker.reset(); endDatePicker.confirm(true)">Limpar</ion-button>
+                    <ion-button color="medium" (click)="endDatePicker.cancel(true)">Cancelar</ion-button>
+                    <ion-button color="primary" (click)="endDatePicker.confirm(true)">OK</ion-button>
+                  </ion-buttons>
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+            <div *ngIf="aulaForm.hasError('endDateAfterStartDate') && f['end_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+              Deve ser após a data de início.
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div *ngIf="!f['is_recurring'].value" class="w-full">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Data da Aula *</ion-label>
+        <ion-item button="true" detail="false" lines="none" id="open-specific-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
+           <ion-label class="text-sm" [class.text-texto-suave]="!f['specific_date'].value">
+              {{ f['specific_date'].value ? (f['specific_date'].value | date:'dd/MM/yyyy') : 'Selecione a data' }}
+           </ion-label>
+           <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
+        </ion-item>
+        <ion-modal trigger="open-specific-date-picker" [keepContentsMounted]="true">
+           <ng-template>
+              <ion-datetime #specificDatePicker presentation="date" formControlName="specific_date" (ionChange)="f['specific_date'].markAsDirty()">
+                 <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="specificDatePicker.reset(); specificDatePicker.confirm(true)">Limpar</ion-button>
+                    <ion-button color="medium" (click)="specificDatePicker.cancel(true)">Cancelar</ion-button>
+                    <ion-button color="primary" (click)="specificDatePicker.confirm(true)">OK</ion-button>
+                  </ion-buttons>
+              </ion-datetime>
+           </ng-template>
+        </ion-modal>
+        <div *ngIf="f['specific_date'].invalid && f['specific_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">Obrigatório.</div>
+      </div>
 
       <div class="flex gap-4">
         <div class="flex-1">
-          <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Início das Aulas *</ion-label>
-          <ion-item button="true" detail="false" lines="none" id="open-start-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
-            <ion-label class="text-sm" [class.text-texto-suave]="!f['start_date'].value">
-              {{f['start_date'].value ? (f['start_date'].value | date:'dd/MM/yyyy' ) : 'Selecione'}}
-            </ion-label>
-            <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
-          </ion-item>
-          <ion-modal trigger="open-start-date-picker" [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime #startDatePicker presentation="date" formControlName="start_date" (ionChange)="f['start_date'].markAsDirty()" doneText="Ok" cancelText="Cancelar">
-                <ion-buttons slot="buttons">
-                  <ion-button color="danger" (click)="startDatePicker.reset(); startDatePicker.confirm(true)">
-                    Limpar
-                  </ion-button>
-                  <ion-button color="medium" (click)="startDatePicker.cancel(true)">
-                    Cancelar
-                  </ion-button>
-                  <ion-button color="primary" (click)="startDatePicker.confirm(true)">
-                    OK
-                  </ion-button>
-                </ion-buttons>
-              </ion-datetime>
-            </ng-template>
-          </ion-modal>
-          <div *ngIf="f['start_date'].invalid && f['start_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">Obrigatório</div>
+          <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Início *</ion-label>
+          <ion-input type="time" formControlName="start_time" class="text-base [--background:theme(colors.fundo-neutro)] rounded-lg px-3 border border-linha-sutil h-10"></ion-input>
+          <div *ngIf="f['start_time'].invalid && f['start_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
         </div>
-
         <div class="flex-1">
-          <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Término (opcional)</ion-label>
-          <ion-item button="true" detail="false" lines="none" id="open-end-date-picker" class="border border-linha-sutil rounded-md p-0 m-0 min-h-0 h-10 flex items-center px-3">
-            <ion-label class="text-sm" [class.text-texto-suave]="!f['end_date'].value">
-              {{f['end_date'].value ? (f['end_date'].value | date:'dd/MM/yyyy' ) : 'Selecione'}}
-            </ion-label>
-            <ion-icon name="calendar" slot="end" class="text-texto-suave text-base"></ion-icon>
-          </ion-item>
-          <ion-modal trigger="open-end-date-picker" [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime #endDatePicker presentation="date" formControlName="end_date" doneText="Ok" cancelText="Cancelar" [min]="f['start_date'].value || ''"
-              (ionChange)="f['end_date'].markAsDirty()">
-                <ion-buttons slot="buttons">
-                  <ion-button color="danger" (click)="endDatePicker.reset(); endDatePicker.confirm(true)">
-                    Limpar
-                  </ion-button>
-                  <ion-button color="medium" (click)="endDatePicker.cancel(true)">
-                    Cancelar
-                  </ion-button>
-                  <ion-button color="primary" (click)="endDatePicker.confirm(true)">
-                    OK
-                  </ion-button>
-                </ion-buttons>
-              </ion-datetime>
-            </ng-template>
-          </ion-modal>
-          <div *ngIf="aulaForm.hasError('endDateAfterStartDate') && f['end_date'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
-            Date de término deve ser após a data de início.
-          </div>
+          <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Término *</ion-label>
+          <ion-input type="time" formControlName="end_time" class="text-base [--background:theme(colors.fundo-neutro)] rounded-lg px-3 border border-linha-sutil h-10"></ion-input>
+          <div *ngIf="f['end_time'].invalid && f['end_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
         </div>
-
       </div>
-
-      <div formArrayName="days_of_week" class="flex justify-between gap-1">
-        <label *ngFor="let day of weekDays; let i = index" class="flex-1">
-          <input type="checkbox" class="sr-only peer" [formControlName]="i">
-          <div class="w-full h-10 rounded-full bg-fundo-neutro text-texto-suave flex items-center justify-center font-medium cursor-pointer peer-checked:bg-azul-sereno peer-checked:text-white">
-            {{day.short}}
-          </div>
-        </label>
-      </div>
-      <div *ngIf="f['days_of_week'].hasError('minDaysSelected') && f['days_of_week'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
-        Selecione pelo menos um dia.
+      <div *ngIf="aulaForm.hasError('endTimeAfterStart') && f['end_time'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
+        Horário de término deve ser após o início.
       </div>
     </div>
 
-    <div class="flex gap-4">
-      <div class="flex-1">
-        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Início</ion-label>
-        <ion-input type="time" formControlName="start_time" class="text-base [--background:theme(colors.fundo-neutro)] rounded-lg px-3"></ion-input>
-        <div *ngIf="f['start_time'].invalid && f['start_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
-      </div>
-      <div class="flex-1">
-        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Término</ion-label>
-        <ion-input type="time" formControlName="end_time" class="text-texto-profundo [--background:theme(colors.fundo-neutro)] rounded-lg px-3"></ion-input>
-        <div *ngIf="f['end_time'].invalid && f['end_time'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
-      </div>
-    </div>
-    <div *ngIf="aulaForm.hasError('endTimeAfterStart') && f['end_time'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
-      Horário de término deve ser após o início.
+
+    <div *ngIf="isEditMode && f['is_recurring'].value" class="bg-white rounded-lg p-3 shadow-sm mb-4">
+      <ion-radio-group [(ngModel)]="editType" [ngModelOptions]="{standalone: true}">
+        <ion-item lines="none">
+          <ion-label class="text-sm text-texto-profundo">Editar apenas esta aula</ion-label>
+          <ion-radio slot="start" value="single"></ion-radio>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label class="text-sm text-texto-profundo">Editar todas as futuras</ion-label>
+          <ion-radio slot="start" value="series"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
     </div>
 
-    <ion-item lines="none" class="[--background:theme(colors.fundo-neutro)] -bg-transparent -ml-3">
-      <ion-checkbox [checked]="true" [disabled]="true" slot="start"></ion-checkbox>
-      <ion-label class="text-texto-suave text-xs">Repetir semanalmente nos dias selecionados</ion-label>
-    </ion-item>
 
+    
     <div class="bg-white rounded-lg p-3 shadow-sm">
-      <ion-label class="text-xs text-texto-suave mb-1 ml-1" position="stacked">Atribuir Responsável</ion-label>
-      <ion-select placeholder="Selecione o Responsável" interface="popover" class="text-base w-full">
-        <ion-select-option value="">(Usuário atual)</ion-select-option>
-        <ion-select-option value="">Outro Responsável</ion-select-option>
+      <ion-label class="text-xs text-texto-suave mb-1 ml-1" position="stacked">Atribuir Responsável *</ion-label>
+      <ion-select placeholder="Selecione o Responsável" formControlName="assigned_guardian_id" interface="popover" class="text-base w-full">
+        <ion-select-option [value]="loggedInUserId">(Usuário atual)</ion-select-option>
+        
       </ion-select>
       <div *ngIf="f['assigned_guardian_id'].invalid && f['assigned_guardian_id'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">
         Obrigatório.
@@ -154,14 +180,17 @@
       Gerar plano de aula com IA
     </ion-button>
 
-    
-    <ion-button *ngIf="isEditMode" (click)="excluirAula()" expand="block" fill="clear" color="danger" class="text-sm">
-      Excluir Aula
-    </ion-button>
-      
-    <ion-button type="submit" expand="block" class="rounded-lg h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white" [disabled]="aulaForm.invalid">
-        Salvar
-    </ion-button>
+    <div class="bottom-0 left-0 right-0">
+       <ion-toolbar class="[--background:theme(colors.fundo-neutro)] p-4 border-t border-linha-sutil space-y-2">
+        <ion-button *ngIf="isEditMode" (click)="excluirAula()" expand="block" fill="clear" color="danger" class="text-sm">
+          Excluir Aula
+        </ion-button>
+          
+        <ion-button type="submit" expand="block" class="rounded-lg h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white" [disabled]="aulaForm.invalid">
+          {{ isEditMode ? 'Salvar Alterações' : 'Salvar Aula' }}
+        </ion-button>
+       </ion-toolbar>
+    </div>
 
   </form>
 </ion-content>

@@ -54,7 +54,14 @@
       <p class="text-texto-suave mt-2">Carregando cronograma...</p>
     </div>
 
-    <div *ngIf="!isLoading && scheduleGroupedByDay" class="space-y-5">
+    
+    <div *ngIf="!isLoading && scheduleIsEmpty" class="text-center py-10 px-6 bg-white rounded-xl shadow-sm">
+      <ion-icon name="calendar-clear" class="text-4xl text-texto-suave mb-3"></ion-icon>
+      <h3 class="font-semibold text-texto-profundo mb-1">Cronograma vazio</h3>
+      <p class="text-sm text-texto-suave">Clique no '+' para agendar a primeira aula.</p>
+    </div>
+
+    <div *ngIf="!(isLoading ?? false) && !(scheduleIsEmpty ?? true) && scheduleGroupedByDay" class="space-y-5">
       <div *ngFor="let day of weekDays" class="relative">
         <ng-container *ngIf="scheduleGroupedByDay[day.value] as aulasDoDia">
           <div class="flex justify-between items-baseline mb-2 pl-4">
@@ -86,16 +93,9 @@
           </div>
 
         </ng-container>
-
       </div>
-
     </div>
 
-    <div *ngIf="!isLoading && scheduleIsEmpty" class="text-center py-10 px-6 bg-white rounded-xl shadow-sm">
-      <ion-icon name="calendar-clear" class="text-4xl text-texto-suave mb-3"></ion-icon>
-      <h3 class="font-semibold text-texto-profundo mb-1">Cronograma vazio</h3>
-      <p class="text-sm text-texto-suave">Clique no '+' para agendar a primeira aula.</p>
-    </div>
   </div>
 
 
