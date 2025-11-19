@@ -25,6 +25,14 @@
     </ion-item>
   </ion-toolbar>
 
+  
+  <div *ngIf="!isCurrentWeek" class="bg-fundo-neutro px-4 pb-2 text-center">
+    <a (click)="goToCurrentWeek()" class="text-xs text-azul-sereno font-medium cursor-pointer hover:underline flex items-center justify-center gap-1">
+      <ion-icon name="calendar-number"></ion-icon>
+      Ir para a semana atual
+    </a>
+  </div>
+
   <ion-toolbar class="[--background:theme(colors.fundo-neutro)] px-4 pb-2">
     <div class="flex justify-between items-center">
       <ion-button fill="clear" (click)="changeWeek(-1)">
@@ -37,6 +45,7 @@
     </div>
 
   </ion-toolbar>
+
 
 </ion-header>
 

@@ -8,7 +8,7 @@ import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 import { addIcons } from 'ionicons';
-import { add, bookmark, calendar, calendarClear, chevronBack, chevronForward, notifications, star } from 'ionicons/icons';
+import { add, bookmark, calendar, calendarClear, calendarNumber, chevronBack, chevronForward, notifications, star } from 'ionicons/icons';
 import { group } from '@angular/animations';
 import { Subject } from 'src/app/models/subject.model';
 import { AddAulaModalComponent } from 'src/app/components/add-aula-modal/add-aula-modal.component';
@@ -41,6 +41,7 @@ export class PlanejamentoPage implements OnInit {
   scheduleGroupedByDay: ScheduleGroup | null = null;
   scheduleIsEmpty = false;
   isLoading = false;
+  isCurrentWeek: boolean = true;
 
   onlyMine: boolean = false;
 
@@ -70,6 +71,7 @@ export class PlanejamentoPage implements OnInit {
       'bookmark': bookmark,
       'add': add,
       'calendar': calendar,
+      'calendar-number': calendarNumber,
       'calendar-clear': calendarClear
     });
 
@@ -148,10 +150,22 @@ export class PlanejamentoPage implements OnInit {
 
   updateWeekDisplay() {
     const today = new Date(this.currentDate);
+    const realToday = new Date();
+
+
+    //Verifica se 'currentDate' está na mesma semana que 'realToday'
+    //Uma forma simples é comparar o início das semanas
+    const currentWeekStart = this.getStartOfWeek(today);
+    const realWeekStart = this.getStartOfWeek(realToday);
+
+    this.isCurrentWeek = currentWeekStart.getTime() === realWeekStart.getTime();
+
     const dayOfWeek = today.getDay();
 
-    this.weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - dayOfWeek);
-    this.weekEnd = new Date(this.weekStart.getFullYear(), this.weekStart.getMonth(), this.weekStart.getDate() +6);
+    this.weekStart = currentWeekStart;
+    this.weekEnd = new Date(this.weekStart);
+    this.weekEnd.setDate(this.weekStart.getDate() + 6);
+    this.weekEnd.setHours(23, 59, 59, 999);
 
     const startDay = this.datePipe.transform(this.weekStart, 'd');
     const startMonth = this.datePipe.transform(this.weekStart, 'MMM');
@@ -166,6 +180,20 @@ export class PlanejamentoPage implements OnInit {
     }
   }
 
+  private getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  }
+
+
+  goToCurrentWeek() {
+    this.currentDate = new Date();
+    this.updateWeekDisplay();
+    this.loadSchedule();
+  }
 
   private groupScheduleByDay(schedule: ScheduleEntry[]): ScheduleGroup {
     const grouped: ScheduleGroup = {};
