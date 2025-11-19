@@ -118,6 +118,10 @@ export class AddAulaModalComponent  implements OnInit {
         this.daysOfWeekArray.setValue(daysCheckBoxes);
       }
 
+      //Desativa a troca de aluno e matéria no modo de edição (CRUCIAL)
+      this.f['student_id'].disable();
+      this.f['subject_id'].disable();
+
     } else {
       // MODO Criação
       this.isEditMode = false;
@@ -128,12 +132,14 @@ export class AddAulaModalComponent  implements OnInit {
         is_recurring: true
       });
 
-      if (this.alunoSelecionadoId) {
-        this.loadMateriasParaAluno(this.alunoSelecionadoId);
-      }
+      
 
       this._updateValidators(true);
 
+    }
+
+    if (this.alunoSelecionadoId) {
+        this.loadMateriasParaAluno(this.alunoSelecionadoId);
     }
 
     this.f['student_id'].valueChanges.subscribe(alunoId => {
@@ -380,8 +386,96 @@ export class AddAulaModalComponent  implements OnInit {
     this.modalCtrl.dismiss(data, role);
   }
 
-  excluirAula() {
-    console.log('Excluir aula');
+  async excluirAula() {
+    if (!this.aulaParaEditar) return;
+
+    const isRecurring = this.aulaParaEditar.is_recurring;
+    const specificDate = this.aulaParaEditar.specific_date;
+
+    if (isRecurring) {
+      //Caso Recorrente : Mostra opções
+      const alert = await this.alertCtrl.create({
+        header: 'Excluir aula',
+        subHeader: 'Excluir aula recorrente',
+        message: 'Esta aula se repete. O que você gostaria de excluir?',
+        cssClass: 'custom-alert',
+        buttons: [
+          {
+            text: 'Apenas a aula nesta data',
+            cssClass: 'alert-button-danger',
+            handler: () => {
+              this.performDelete('occurrence');
+            }
+          },
+          {
+            text: 'Todas as ocorrências desta aula.',
+            cssClass: 'alert-button-danger-outline',
+            handler: () => {
+              this.performDelete('series');
+            }
+          },
+          {
+            text: 'Cancelar',
+            role: 'cancel',
+            cssClass: 'alert-button-cancel'
+          }
+        ]
+      });
+
+      await alert.present();
+    } else {
+      // -- Caso Aula Única; Confirmação Simples
+      const alert = await this.alertCtrl.create({
+        header: 'Excluir aula',
+        message: 'Tem certeza que deseja excluir esta aula?',
+        buttons: [
+          {
+            text: 'Cancelar',
+            role: 'cancel'
+          },
+          {
+            text: 'Excluir',
+            role: 'destructive',
+            handler: () => {
+              this.performDelete('series');  
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
+
+  }
+
+  private async performDelete(type: 'occurrence' | 'series') {
+    const loading = await this.loadingCtrl.create({message: 'Excluindo...'});
+    await loading.present();
+
+    const aulaId = this.aulaParaEditar!.id;
+    const dateToDelete = this.selectedDate || new Date().toISOString().split('T')[0];
+    let deleteObs;
+
+    if (type === 'occurrence') {
+      console.log(`Excluindo ocorrência de ${aulaId} na data de ${dateToDelete}`);
+      deleteObs = this.scheduleService.deleteOccurrence(aulaId, dateToDelete);
+    } else {
+      console.log(`Excluindo série/aula completa ${aulaId}`);
+      deleteObs = this.scheduleService.deleteSchedule(aulaId);
+    }
+
+    deleteObs.subscribe({
+      next: async () => {
+        await loading.dismiss();
+        this.dismissModal(null, 'confirm');
+        await this.presentAlert('Sucesso', 'Aula Excluída.');
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        console.error("Erro ao excluir:", err);
+        await this.presentAlert('Erro', 'Não foi possível excluir a aula.');
+      }
+    });
+
   }
 
   goToManageSubjects() {

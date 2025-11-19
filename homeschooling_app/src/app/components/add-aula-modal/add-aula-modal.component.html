@@ -14,7 +14,8 @@
 
     <div class="bg-white rounded-lg p-3 shadow-sm">
       <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Aluno *</ion-label>
-      <ion-select placeholder="Selecione o aluno" formControlName="student_id" interface="popover" class="text-base w-full">
+      <ion-select placeholder="Selecione o aluno" formControlName="student_id" interface="popover" class="text-base w-full"
+          [disabled]="isEditMode">
         <ion-select-option *ngFor="let aluno of alunos" [value]="aluno.id">{{aluno.name}}</ion-select-option>
       </ion-select>
       <div *ngIf="f['student_id'].invalid && f['student_id'].touched" class="text-vermelho-erro text-xs mt-1 ml-1">
@@ -29,7 +30,7 @@
       </div>
       <ion-select placeholder="{{(materiasLoading | async) ? 'A carregar...' : (f['student_id'].value ? 'Selecione a matéria' : 'Selecione um aluno')}}"
                   formControlName="subject_id" interface="popover"
-                  class="text-base w-full">
+                  class="text-base w-full" [disabled]="isEditMode">
         <ion-select-option *ngFor="let materia of (materiasDisponiveis$ | async)" [value]="materia.id">{{materia.name}}</ion-select-option>
         <ion-select-option *ngIf="!(materiasLoading | async) && (materiasDisponiveis$ | async)?.length === 0 && f['student_id'].value" [disabled]="true">Nenhuma matéria ativa encontrada.</ion-select-option>
       </ion-select>

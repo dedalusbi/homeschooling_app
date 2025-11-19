@@ -57,4 +57,17 @@ export class ScheduleService {
     );
   }
 
+
+  //Remove uma entrada de cronograma inteira (todas as ocorrências ou aula única)
+  deleteSchedule(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/schedules/${id}`);
+  }
+
+  //Remove apenas UMA ocorrência específica de uma aula recorrente
+  deleteOccurrence(id: string, date: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/schedules/${id}/occurrence`, {
+      params: {date: date}
+    });
+  }
+
 }
