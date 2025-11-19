@@ -16,4 +16,5 @@ export interface ScheduleEntry {
   end_date: string | null;
   specific_date: string | null;
   excluded_dates?: string[];
+  activities?:string | null;
 }

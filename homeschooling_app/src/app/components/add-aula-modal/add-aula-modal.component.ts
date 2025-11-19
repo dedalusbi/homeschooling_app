@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonDatetime, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonButton, IonButtons, IonCheckbox, IonContent, IonDatetime, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTextarea, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, sparkles } from 'ionicons/icons';
 import { BehaviorSubject, first } from 'rxjs';
@@ -29,7 +29,7 @@ const WEEK_DAYS_DEF = [
   styleUrls: ['./add-aula-modal.component.scss'],
   imports: [CommonModule, ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonIcon, IonContent, IonLabel, IonSelectOption, IonInput, IonItem, IonCheckbox, IonSelect,
-    IonModal, IonDatetime, IonFooter, IonRadioGroup, IonRadio, FormsModule
+    IonModal, IonDatetime, IonFooter, IonRadioGroup, IonRadio, FormsModule, IonTextarea
   ]
 })
 export class AddAulaModalComponent  implements OnInit {
@@ -83,7 +83,7 @@ export class AddAulaModalComponent  implements OnInit {
       start_date: [null, [Validators.required]],
       end_date: [null],
       specific_date: [null],
-      
+      activities: [''],
       
     }, {validators: [this.endTimeAfterStartValidator, this.endDateAfterStartDateValidator]});
 
@@ -107,6 +107,7 @@ export class AddAulaModalComponent  implements OnInit {
         start_time: aula.start_time.substring(0,5),
         end_time: aula.end_time.substring(0,5),
         assigned_guardian_id: aula.assigned_guardian_id,
+        activities: aula.activities,
         is_recurring: isRecurring,
         start_date: isRecurring ? (aula.start_date ? new Date(aula.start_date + 'T00:00:00').toISOString() : null) : null,
         end_date: isRecurring ? (aula.end_date ? new Date(aula.end_date + 'T00:00:00').toISOString() : null) : null,
@@ -248,7 +249,8 @@ export class AddAulaModalComponent  implements OnInit {
       assigned_guardian_id: formValue.assigned_guardian_id,
       start_time: formValue.start_time,
       end_time: formValue.end_time,
-      is_recurring: formValue.is_recurring
+      is_recurring: formValue.is_recurring,
+      activities: formValue.activities
     };            
     
     if (formValue.is_recurring) {

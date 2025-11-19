@@ -176,6 +176,17 @@
       </div>
     </div>
 
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave ml-1 mb-1">Atividades da aula</ion-label>
+      <ion-textarea
+        formControlName="activities"
+        placeholder="Descreva o que será feito nesta aula (ex: Páginas 10-15 do livro, exercícios de fixação, etc...)"
+        [autoGrow]="true" rows="3" class="text-base mt-1">
+      </ion-textarea>
+    </div>
+
+
     <ion-button expand="block" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white shadow-md rounded-lg">
       <ion-icon name="sparkles" slot="start"></ion-icon>
       Gerar plano de aula com IA
