@@ -1018,6 +1018,10 @@ video {
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
 }
 
+.self-stretch {
+  align-self: stretch;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }

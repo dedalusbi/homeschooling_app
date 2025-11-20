@@ -372,5 +372,26 @@ export class PlanejamentoPage implements OnInit {
     }
   }
 
+  //Calcula a altura do card baseada na duração da aula
+  getCardHeight(start: string, end: string): number {
+    if (!start || !end) return 80;
 
+    const toMinutes = (timeStr: string) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return (hours * 60) + minutes;
+    };
+    const startMin = toMinutes(start);
+    const endMin = toMinutes(end);
+    let duration = endMin - startMin;
+    
+    if (duration < 0) duration += (24*60);
+    
+    const pixelsPerMinute = 1.6;
+    const baseHeight = 20;
+
+    const calculatedHeight = (duration * pixelsPerMinute) + baseHeight;
+    return Math.max(calculatedHeight, 90);
+
+
+  }
 }
