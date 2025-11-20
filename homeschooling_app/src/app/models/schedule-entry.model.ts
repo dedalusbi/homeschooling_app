@@ -10,7 +10,9 @@ export interface ScheduleEntry {
   start_time: string;
   end_time: string;
   responsible_avatar_id: string | null;
-  status?: 'Pendente' | 'Concluída';
+  status?: 'completed' | 'missed' | null;
+  log_id?: string | null;
+  log_notes?: string | null;
   is_recurring: boolean;
   start_date: string | null;
   end_date: string | null;

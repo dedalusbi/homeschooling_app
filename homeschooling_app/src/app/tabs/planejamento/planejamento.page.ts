@@ -8,10 +8,11 @@ import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 import { addIcons } from 'ionicons';
-import { add, bookmark, calendar, calendarClear, calendarNumber, chevronBack, chevronForward, notifications, star } from 'ionicons/icons';
+import { add, bookmark, calendar, calendarClear, calendarNumber, checkmarkCircle, chevronBack, chevronForward, ellipse, notifications, star } from 'ionicons/icons';
 import { group } from '@angular/animations';
 import { Subject } from 'src/app/models/subject.model';
 import { AddAulaModalComponent } from 'src/app/components/add-aula-modal/add-aula-modal.component';
+import { RegistrarAtividadeModalComponent } from 'src/app/components/registrar-atividade-modal/registrar-atividade-modal.component';
 
 interface ScheduleGroup {
   [dayOfWeek: number]: ScheduleEntry[];
@@ -72,7 +73,9 @@ export class PlanejamentoPage implements OnInit {
       'add': add,
       'calendar': calendar,
       'calendar-number': calendarNumber,
-      'calendar-clear': calendarClear
+      'calendar-clear': calendarClear,
+      'checkmark-circle': checkmarkCircle,
+      'ellipse': ellipse
     });
 
     this.updateWeekDisplay();
@@ -232,7 +235,7 @@ export class PlanejamentoPage implements OnInit {
       }
      
       if (grouped[key] != undefined){
-        aula.status = 'Pendente';
+        //aula.status = '';
         grouped[key].push(aula);
       }
     }
@@ -342,6 +345,31 @@ export class PlanejamentoPage implements OnInit {
     //TODO Lógica de cores
     //placeholder
     return '#3A5A92';
+  }
+
+
+  //Abre o modal de registro de atividade
+  async openRegistrarModal(aula: ScheduleEntry, date: Date) {
+    //formata a data para string YYYY-MM-DD para enviar ao backend/model
+    const dateStr = this.datePipe.transform(date, 'yyy-MM-dd');
+
+    const modal = await this.modalCtrl.create({
+      component: RegistrarAtividadeModalComponent,
+      componentProps: {
+        aula: aula,
+        dataOcorrencia: dateStr
+      },
+      //Estilo "Sheet" (desliza de baixo)
+      breakpoints: [0, 0.75, 0.9],
+      initialBreakpoint: 0.75
+    });
+
+    await modal.present();
+
+    const {data, role} = await modal.onWillDismiss();
+    if (role === 'confirm') {
+      this.loadSchedule();
+    }
   }
 
 

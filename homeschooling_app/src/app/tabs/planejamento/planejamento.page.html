@@ -78,23 +78,31 @@
             <span class="text-xs text-texto-suave">{{getDayDate(day.value) | date:'dd MMM'}}</span>
           </div>
           <div class="space-y-2">
-            <ion-card *ngFor="let aula of aulasDoDia" (click)="openEditModal(aula)" button="true"
+            <ion-card *ngFor="let aula of aulasDoDia" button="true"
               class="m-0 rounded-xl shadow-sm bg-white">
               <ion-card-content class="flex items-center space-x-3 p-3">
                 <div class="w-1.5 h-12 rounded-full" [style.background-color]="getSubjectColor(aula.subject_name)"></div>
-                <div class="flex-grow">
+                <div class="flex-grow"  (click)="openEditModal(aula)">
                   <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}} - {{formatTime(aula.end_time)}}</p>
                   <h3 class="font-semibold text-texto-profundo">{{aula.subject_name}}</h3>
                   <p *ngIf="selectedStudentId === 'all'" class="text-xs text-texto-suave"> {{aula.student_name}}</p>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-1" (click)="$event.stopPropagation()">
                   <ion-avatar class="w-6 h-6 border border-linha-sutil">
                     <img [src]="'assets/avatars/'+(aula.responsible_avatar_id || 'placeholder.png')" alt="avatar do responsável"
                       class="rounded-full w-full h-full object-cover bg-gray-200">
                   </ion-avatar>
-                  <ion-chip [color]="aula.status === 'Concluída' ? 'success' : 'warning'" class="text-xs h-6 px-2 m-0">
-                    {{aula.status || 'Pendente'}}
+                  
+                  <ion-chip [color]="aula.status === 'completed' ? 'success' : (aula.status === 'missed'? 'danger' : 'warning')" class="normal-case text-xs h-6 px-2 m-0">
+                    {{aula.status === 'completed' ? 'Concluída' : (aula.status === 'missed' ? 'Não Realizada' : 'Pendente')}}
                   </ion-chip>
+                  
+                  <ion-button fill="clear" (click)="openRegistrarModal(aula, getDayDate(day.value))">
+                    <ion-icon
+                      name="checkmark-circle" class="text-lg"
+                      [color]="aula.status === 'completed' ? 'success' : 'medium'"
+                    ></ion-icon>
+                  </ion-button>
                 </div>
               </ion-card-content>
             </ion-card>

@@ -1,0 +1,87 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="bg-white rounded-t-xl">
+    <div class="flex justify-between items-start p-2">
+      <div>
+        <h2 class="text-lg font-bold text-texto-profundo">Registrar atividade</h2>
+        <p class="text-sm text-texto-suave">{{aula.subject_name}} - {{aula.start_time | slice:0:5}}</p>
+        <p class="text-sm text-texto-suave">{{dataOcorrencia | date:'dd/MM/yyyy'}}</p>
+      </div>
+      <ion-button fill="clear" (click)="dismiss(null)" class="text-texto-suave -mr-2 -mt-2">
+        <ion-icon name="close" slot="icon-only" class="text-xl"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:white]">
+
+  <div class="p-4 space-y-6">
+
+    <div>
+      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Status da Aula</ion-label>
+      <div class="flex gap-3">
+        <div class="flex-1 cursor-pointer rounded-lg border-2 transition-all duration-200 h-12 flex items-center justify-center gap-2"
+              [class.bg-verde-crescimento]="status === 'completed'"
+              [class.border-verde-crescimento]="status === 'completed'"
+              [class.text-white]="status === 'completed'"
+              [class.bg-gray-100]="status !== 'completed'"
+              [class.border-transparent]="status !== 'completed'"
+              [class.text-texto-suave]="status !== 'completed'"
+              (click)="setStatus('completed')">
+          <ion-icon name="checkmark"></ion-icon>
+          <span class="font-medium">Concluída</span>
+        </div>
+
+        <div class="flex-1 cursor-pointer rounded-lg border-2 transition-all duration-200 h-12 flex items-center justify-center gap-2"
+              [class.bg-gray-200]="status === 'missed'"
+              [class.border-gray-300]="status === 'missed'"
+              [class.text-texto-profundo]="status === 'missed'"
+              [class.bg-gray-100]="status !== 'missed'"
+              [class.border-transparent]="status !== 'missed'"
+              [class.text-texto-suave]="status !== 'missed'"
+              (click)="setStatus('missed')">
+          <ion-icon name="close"></ion-icon>
+          <span class="font-medium">Não Realizada</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div>
+      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Anotações da aula</ion-label>
+      <div class="border border-linha-sutil rounded-lg p-2 bg-white">
+        <ion-textarea
+          [(ngModel)]="notes"
+          placeholder="Descreva como foi a aula, dificuldades encontradas, pontos positivos..."
+          rows="5"
+          class="text-sm"
+          [autoGrow]="true">
+        </ion-textarea>
+      </div>
+    </div>
+
+
+    <div>
+      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Fotos da atividade</ion-label>
+      <div class="flex gap-2 overflow-x-auto pb-2">
+        <div class="w-20 rounded-lg border-2 border-dashed border-linha-sutil flex flex-col items-center justify-center text-texto-suave cursor-pointer bg-gray-50">
+          <ion-icon name="camera" class="text-2xl mb-1"></ion-icon>
+          <span class="text-[10px]">Adicionar</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="ion-no-border p-4 bg-white">
+    <ion-button expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.azul-sereno)] text-white" (click)="saveLog()">
+
+      <ion-icon name="save" slot="start"></ion-icon>
+      Salvar Registro
+    </ion-button>
+
+  </div>
+
+</ion-content>
+

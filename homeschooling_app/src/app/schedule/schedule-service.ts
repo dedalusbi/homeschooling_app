@@ -70,4 +70,8 @@ export class ScheduleService {
     });
   }
 
+  createDailylog(scheduleId: string, logData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/schedules/${scheduleId}/logs`, {log: logData})
+  }
+
 }
