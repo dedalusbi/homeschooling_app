@@ -1,3 +1,5 @@
+import { ActivityHistory } from "./activity-history.model";
+
 export interface Subject {
 
     id: string;
@@ -10,6 +12,6 @@ export interface Subject {
     aulas_totais?: number;
     progresso?:number;
     teaching_materials?: string | null;
-
+    history?: ActivityHistory[];
 
 }
