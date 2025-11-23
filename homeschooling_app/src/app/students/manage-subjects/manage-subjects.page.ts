@@ -7,6 +7,7 @@ import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { add, body, book, calculator, chevronForward, create, filter, flask, folderOpen, musicalNotes, text } from 'ionicons/icons';
+import { Student } from 'src/app/models/student.model';
 
 @Component({
   selector: 'app-manage-subjects',
@@ -25,6 +26,7 @@ export class ManageSubjectsPage implements OnInit {
   selectedStudentId: string | null = null;
   currentStatus: 'active' | 'completed' = 'active';
   subjects: Subject[] = [];
+  students: Student[] = [];
   isLoading = true;
 
 
@@ -57,13 +59,34 @@ export class ManageSubjectsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    if (this.studentId) {
-      this.loadSubjects();
-    } else {
-      console.error("Nenhum ID de aluno fornecido na rota");
-      this.isLoading=false;
-    }
+    this.loadStudentsandSubject();
   }  
+
+  loadStudentsandSubject() {
+    this.isLoading=true;
+
+    this.studentService.getStudents().subscribe({
+      next: (res) => {
+        this.students = res.data || [];
+        if (this.students.length > 0) {
+          if (!this.studentId) {
+            this.studentId = this.students[0].id!;
+          }
+          this.selectedStudentId = this.studentId;
+          this.loadSubjects();
+        } else {
+          this.isLoading=false;
+          this.subjects = [];
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar lista de alunos:', err);
+        this.isLoading=false;
+      }
+    });
+
+   
+  }
 
   segmentChanged(event: any) {
     this.currentStatus = event.detail.value;

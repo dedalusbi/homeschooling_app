@@ -7,9 +7,8 @@
     <ion-buttons slot="end">
       <ion-item lines="none" class="[--background:transparent] text-sm">
         <ion-select [(ngModel)]="selectedStudentId" (ionChange)="onStudentChange()"
-          interface="popover" class="text-azul-sereno font-medium">
-          <ion-select-option value="1">Aluno 1</ion-select-option>
-          <ion-select-option value="2">Aluno 2</ion-select-option>
+          interface="popover" class="text-azul-sereno font-medium" placeholder="Selecione" [disabled]="students.length === 0">
+          <ion-select-option *ngFor="let student of students" [value]="student.id">{{student.name}}</ion-select-option>
         </ion-select>
       </ion-item>
     </ion-buttons>

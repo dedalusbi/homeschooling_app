@@ -19,6 +19,10 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'subjects',
+        loadComponent:() => import('../students/manage-subjects/manage-subjects.page').then(m => m.ManageSubjectsPage),
+      },
+      {
         path: 'alunos',
         children: [
           {
