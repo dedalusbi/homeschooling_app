@@ -27,6 +27,16 @@
           [autoGrow]="true"></ion-textarea>
       </div>
 
+      <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
+        <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Material Didático</ion-label>
+        <ion-textarea
+          placeholder="Ex.: Livros, Cursos, Tutores, etc..."
+          formControlName="teaching_materials"
+          class="text-base"
+          [autoGrow]="true"
+          rows="2"></ion-textarea>
+      </div>
+
       <ion-button type="submit" expand="block" shape="round" class="h-12 text-base normal-case [--background:theme(colors.verde-crescimento)] text-white hover:bg-opacity-90 mt-8"
         [disabled]="subjectForm.invalid">
         <ion-icon name="save" slot="start"></ion-icon>

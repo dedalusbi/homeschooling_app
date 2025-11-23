@@ -9,6 +9,7 @@ export interface Subject {
     aulas_concluidas?: number;
     aulas_totais?: number;
     progresso?:number;
+    teaching_materials?: string | null;
 
 
 }

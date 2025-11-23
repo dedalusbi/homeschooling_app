@@ -41,7 +41,8 @@ export class SubjectFormPage implements OnInit {
     this.subjectForm = this.fb.group({
       name: ['', [Validators.required]],
       description: [null],
-      status: ['active', Validators.required]
+      status: ['active', Validators.required],
+      teaching_materials: ['']
     });
   }
 
@@ -131,7 +132,8 @@ export class SubjectFormPage implements OnInit {
         this.subjectForm.patchValue({
           name: subjectData.name,
           description: subjectData.description,
-          status: subjectData.status
+          status: subjectData.status,
+          teaching_materials: subjectData.teaching_materials
         });
         this.studentId = subjectData.student_id;
         this.isLoading = false;
