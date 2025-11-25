@@ -71,7 +71,26 @@ export class ScheduleService {
   }
 
   createDailylog(scheduleId: string, logData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/schedules/${scheduleId}/logs`, {log: logData})
+    return this.http.post(`${this.apiUrl}/schedules/${scheduleId}/logs`, {log: logData});
+  }
+
+  //obter URL pré-assinada
+  private getPresignedUrl(filename: string, fileType: string) {
+    return this.http.get<{data: {upload_url: string, public_url: string}}>(`${this.apiUrl}/logs/upload_url`, {params: {filename, type: fileType}});
+  }
+
+  //Fazer upload para o S3 (PUT direto)
+  private uploadToS3(uploadUrl: string, file: File) {
+    return this.http.put(uploadUrl, file, {
+      headers: {'Content-Type': file.type}
+    });
+  }
+
+  //salvar metadados no Backend
+  private registerAttachment(logId: string, fileUrl: string, fileType: string, fileName: string) {
+    return this.http.post(`${this.apiUrl}/logs/${logId}/attachments`, {
+      attachment: {file_url: fileUrl, file_type: fileType, file_name: fileName}
+    });
   }
 
 }
