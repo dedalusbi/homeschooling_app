@@ -3,7 +3,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonTextarea, IonToolbar, LoadingController, ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { camera, checkmark, close, save } from 'ionicons/icons';
+import { camera, checkmark, close, documentTextOutline, save } from 'ionicons/icons';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 
@@ -22,12 +22,15 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
   status: 'completed' | 'missed' = 'completed';
   notes: string = '';
 
+  isUploading = false;
+  attachments: any[] = [];
+
   constructor(
     private modalCtrl: ModalController, private scheduleService: ScheduleService, private loadingCtrl: LoadingController,
     private alertCtrl: AlertController
   ) {
     addIcons({
-      'close': close, 'checkmark': checkmark, 'camera': camera, 'save': save
+      'close': close, 'checkmark': checkmark, 'camera': camera, 'save': save, 'document-text': documentTextOutline
     });
   }
 
@@ -39,6 +42,9 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
     }
     if (this.aula.log_notes) {
       this.notes = this.aula.log_notes;
+    }
+    if (this.aula.log_id) {
+      //todo implementar this.loadAttachments
     }
   }
 
@@ -81,4 +87,53 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
     this.modalCtrl.dismiss(data, 'cancel');
   }
 
+  //disparada quando o utilizador escolhe arquivos...
+  async onFileSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (!files || files.length === 0) return;
+
+    //garante que temos um log_id (salva o texto primeiro se for novo)
+    if (!this.aula.log_id) {
+      const saved = await this.saveLogInternal();
+      if (!saved) return;
+    }
+
+    this.isUploading = true;
+
+    //Percorre todos os arquivos selecionados e faz upload um por um
+    for (let i=0; i<files.length; i++) {
+      const file = files[i];
+      try {
+        const result = await this.scheduleService.uploadfileFlow(file, this.aula.log_id!).toPromise();
+        //adiciona o resultado (que contém a URL pública) à lista local para exibição
+        this.attachments.push(result.data);
+      } catch (error) {
+        console.error(`Erro ao enviar ${file.name}:`, error);
+      }
+    }
+
+    this.isUploading = false;
+    //Limpa o input para permitir selecionar o mesmo arquivo novamente se necessário
+    event.target.value='';
+  }
+
+  //Função auxiliar para salvar silenciosamente e obter o ID
+  async saveLogInternal(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const logData = {log_date: this.dataOcorrencia, status: this.status, notes: this.notes};
+      this.scheduleService.createDailylog(this.aula.id, logData).subscribe({
+        next: (res) => {
+          //atualiza o objeto aula local com o novo ID e dados
+          this.aula.log_id = res.data.id;
+          this.aula.status = res.data.status;
+          resolve(true);
+        },
+        error: (err) => {
+          console.error(err);
+          this.alertCtrl.create({header: 'Erro', message: 'Salve o registro antes de anexar arquivos.', buttons: ['OK']}).then(a => a.present());
+          resolve(false);
+        }
+      });
+    });
+  }
 }

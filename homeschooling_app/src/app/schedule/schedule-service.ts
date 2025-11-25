@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ScheduleEntry } from '../models/schedule-entry.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -91,6 +91,25 @@ export class ScheduleService {
     return this.http.post(`${this.apiUrl}/logs/${logId}/attachments`, {
       attachment: {file_url: fileUrl, file_type: fileType, file_name: fileName}
     });
+  }
+
+  //Recebe um objeto File (do input HTML), envia para o S3 e registra no backend.
+  uploadfileFlow(file: File, logId: string): Observable<any> {
+    const filename = file.name; //ex tarefa.pdf
+    const filetype = file.type; //application/pdf
+
+    //encadeia as chamadas: Pegar URL -> Enviar S3 -> Registrar no banco
+    return this.getPresignedUrl(filename, filetype).pipe(
+      switchMap(res => {
+        const {upload_url, public_url} = res.data;
+        //faz o upload e, quando terminar, retorna os dados para o próximo passo
+        return this.uploadToS3(upload_url, file).pipe(
+          switchMap(() => {
+            return this.registerAttachment(logId, public_url, filetype, filename);
+          })
+        );
+      })
+    );
   }
 
 }
