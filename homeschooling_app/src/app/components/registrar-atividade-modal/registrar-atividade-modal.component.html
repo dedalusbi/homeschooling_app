@@ -62,12 +62,40 @@
 
 
     <div>
-      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Fotos da atividade</ion-label>
+      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Fotos e Documentos</ion-label>
+
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        style="display: none;"
+        accept="image/*,application/pdf"
+        multiple
+      />
+
+      
       <div class="flex gap-2 overflow-x-auto pb-2">
-        <div class="w-20 rounded-lg border-2 border-dashed border-linha-sutil flex flex-col items-center justify-center text-texto-suave cursor-pointer bg-gray-50">
-          <ion-icon name="camera" class="text-2xl mb-1"></ion-icon>
-          <span class="text-[10px]">Adicionar</span>
+        <div class="w-20 h-20 rounded-lg border-2 border-dashed border-linha-sutil flex flex-col items-center justify-center text-texto-suave cursor-pointer bg-gray-50 hover:bg-gray-100"
+          (click)="fileInput.click()">
+          <ion-spinner *ngIf="isUploading" name="crescent"></ion-spinner>
+          <div *ngIf="!isUploading" class="flex flex-col items-center">
+            <ion-icon name="add-circle" class="text-2xl mb-1"></ion-icon>
+            <span class="text-[10px]">Adicionar</span>
+          </div>          
         </div>
+
+        <div *ngFor="let att of attachments" class="relative w-20 h-20 flex-shrink-0">
+          <ng-container *ngIf="isImage(att)">
+            <img [src]="att.file_url" class="w-full h-full object-cover rounded-lg border border-linha-sutil">
+          </ng-container>
+          <ng-container *ngIf="!isImage(att)">
+            <div *ngIf="!att.file_type.startsWith('image')" class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-linha-sutil text-texto-profundo">
+              <ion-icon name="document-text" class="text-2xl"></ion-icon>
+            </div>
+          </ng-container>
+          
+        </div>
+
       </div>
     </div>
 

@@ -386,7 +386,7 @@ export class PlanejamentoPage implements OnInit {
     
     if (duration < 0) duration += (24*60);
     
-    const pixelsPerMinute = 1.6;
+    const pixelsPerMinute = 1;
     const baseHeight = 20;
 
     const calculatedHeight = (duration * pixelsPerMinute) + baseHeight;

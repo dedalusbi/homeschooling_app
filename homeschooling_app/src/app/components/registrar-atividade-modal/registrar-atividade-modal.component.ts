@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AlertController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonTextarea, IonToolbar, LoadingController, ModalController } from '@ionic/angular/standalone';
+import { AlertController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonSpinner, IonTextarea, IonToolbar, LoadingController, ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { camera, checkmark, close, documentTextOutline, save } from 'ionicons/icons';
+import { addCircle, camera, checkmark, close, documentTextOutline, save } from 'ionicons/icons';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 
@@ -11,7 +11,7 @@ import { ScheduleService } from 'src/app/schedule/schedule-service';
   selector: 'app-registrar-atividade-modal',
   templateUrl: './registrar-atividade-modal.component.html',
   styleUrls: ['./registrar-atividade-modal.component.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent, IonLabel, IonTextarea, IonFooter],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent, IonLabel, IonTextarea, IonFooter, IonSpinner],
   standalone: true,
 })
 export class RegistrarAtividadeModalComponent  implements OnInit {
@@ -30,7 +30,8 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
     private alertCtrl: AlertController
   ) {
     addIcons({
-      'close': close, 'checkmark': checkmark, 'camera': camera, 'save': save, 'document-text': documentTextOutline
+      'close': close, 'checkmark': checkmark, 'camera': camera, 'save': save, 'document-text': documentTextOutline,
+      'add-circle': addCircle
     });
   }
 
@@ -44,8 +45,17 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
       this.notes = this.aula.log_notes;
     }
     if (this.aula.log_id) {
-      //todo implementar this.loadAttachments
+      this.loadAttachments(this.aula.log_id);
     }
+  }
+
+  loadAttachments(logId: string) {
+    this.scheduleService.getAttachments(logId).subscribe({
+      next: (res) => {
+        this.attachments = res.data;
+      },
+      error: (err) => console.error('Erro ao carregar anexos:', err)
+    });
   }
 
   setStatus(newStatus: 'completed' | 'missed') {
@@ -136,4 +146,13 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
       });
     });
   }
+
+  isImage(att: any): boolean {
+    if (!att) return false;
+    if (att.file && att.file_type.startsWith('image/')) return true;
+
+    const name = att.file_name || att.file_url || '';
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(name);
+  }
+
 }

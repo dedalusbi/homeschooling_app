@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ScheduleEntry } from '../models/schedule-entry.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,13 @@ export class ScheduleService {
 
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  //Cliente HTTP especial que ignora interceptores (para chamadas externas como S3)
+  private externalHttp: HttpClient;
+
+  constructor(private http: HttpClient, private handler: HttpBackend) {
+    //Criar uma nova instância de HttpClient usando o handler puro
+    this.externalHttp = new HttpClient(handler);
+  }
 
   getScheduleForStudent(studentId: string, onlyMine: boolean, weekStart: string, weekEnd: string): Observable<{data: ScheduleEntry[]}> {
     
@@ -81,7 +87,7 @@ export class ScheduleService {
 
   //Fazer upload para o S3 (PUT direto)
   private uploadToS3(uploadUrl: string, file: File) {
-    return this.http.put(uploadUrl, file, {
+    return this.externalHttp.put(uploadUrl, file, {
       headers: {'Content-Type': file.type}
     });
   }
@@ -110,6 +116,11 @@ export class ScheduleService {
         );
       })
     );
+  }
+
+
+  getAttachments(logId: string) {
+    return this.http.get<{data: any[]}>(`${this.apiUrl}/logs/${logId}/attachments`);
   }
 
 }
