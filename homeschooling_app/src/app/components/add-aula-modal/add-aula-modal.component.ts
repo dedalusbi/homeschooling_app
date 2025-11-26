@@ -99,6 +99,8 @@ export class AddAulaModalComponent  implements OnInit {
       //Modo Edição
       this.isEditMode=true;
       const aula = this.aulaParaEditar;
+      console.log("aula");
+      console.dir(aula);
       const isRecurring = aula.is_recurring;
       this._updateValidators(isRecurring);
       this.aulaForm.patchValue({
@@ -114,9 +116,13 @@ export class AddAulaModalComponent  implements OnInit {
         specific_date: !isRecurring ? (aula.specific_date ? new Date(aula.specific_date + 'T00:00:00').toISOString() : null) : null
       });
 
-      if (isRecurring && aula.day_of_week != null) {
-        const daysCheckBoxes = this.weekDays.map(day => day.value === aula.day_of_week);
+      if (isRecurring) {
+        const activeDays = aula.active_days || [aula.day_of_week];
+        const daysCheckBoxes = this.weekDays.map(day =>
+          activeDays.includes(day.value)
+        );
         this.daysOfWeekArray.setValue(daysCheckBoxes);
+        this.daysOfWeekArray.enable();
       }
 
       //Desativa a troca de aluno e matéria no modo de edição (CRUCIAL)

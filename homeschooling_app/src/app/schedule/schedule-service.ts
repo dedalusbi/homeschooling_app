@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, ObservedValueOf, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ScheduleEntry } from '../models/schedule-entry.model';
 import { HttpBackend, HttpClient, HttpParams } from '@angular/common/http';
@@ -121,6 +121,10 @@ export class ScheduleService {
 
   getAttachments(logId: string) {
     return this.http.get<{data: any[]}>(`${this.apiUrl}/logs/${logId}/attachments`);
+  }
+
+  getScheduleById(id: string): Observable<{data: ScheduleEntry}> {
+    return this.http.get<{data: ScheduleEntry}>(`${this.apiUrl}/schedules/${id}`);
   }
 
 }

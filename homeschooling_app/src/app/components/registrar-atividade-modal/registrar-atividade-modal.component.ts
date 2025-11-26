@@ -52,6 +52,8 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
   loadAttachments(logId: string) {
     this.scheduleService.getAttachments(logId).subscribe({
       next: (res) => {
+        console.log("Attachments:");
+        console.dir(res.data);
         this.attachments = res.data;
       },
       error: (err) => console.error('Erro ao carregar anexos:', err)
@@ -153,6 +155,10 @@ export class RegistrarAtividadeModalComponent  implements OnInit {
 
     const name = att.file_name || att.file_url || '';
     return /\.(jpg|jpeg|png|gif|webp)$/i.test(name);
+  }
+
+  openImage(fileUrl: string) {
+    window.open(fileUrl, '_blank');
   }
 
 }

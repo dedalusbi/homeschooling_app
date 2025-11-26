@@ -19,4 +19,6 @@ export interface ScheduleEntry {
   specific_date: string | null;
   excluded_dates?: string[];
   activities?:string | null;
+  recurrence_group_id?: string;
+  active_days?: number[];
 }

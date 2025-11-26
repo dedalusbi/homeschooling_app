@@ -86,11 +86,14 @@
 
         <div *ngFor="let att of attachments" class="relative w-20 h-20 flex-shrink-0">
           <ng-container *ngIf="isImage(att)">
-            <img [src]="att.file_url" class="w-full h-full object-cover rounded-lg border border-linha-sutil">
+            <img [src]="att.file_url" class="w-full h-full object-cover rounded-lg border border-linha-sutil"
+                  (click)="openImage(att.file_url)">
           </ng-container>
           <ng-container *ngIf="!isImage(att)">
-            <div *ngIf="!att.file_type.startsWith('image')" class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-linha-sutil text-texto-profundo">
+            <div *ngIf="!att.file_type.startsWith('image')" class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-linha-sutil text-texto-profundo"
+                        (click)="openImage(att.file_url)">
               <ion-icon name="document-text" class="text-2xl"></ion-icon>
+              <span class="text-[8px] w-full truncate text-center">{{att.file_name}}</span>
             </div>
           </ng-container>
           

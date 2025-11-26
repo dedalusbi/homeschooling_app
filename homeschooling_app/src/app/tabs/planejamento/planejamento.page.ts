@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, ModalController, NavController } from '@ionic/angular/standalone';
+import { IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, LoadingController, ModalController, NavController } from '@ionic/angular/standalone';
 import { ScheduleEntry } from 'src/app/models/schedule-entry.model';
 import { BehaviorSubject, forkJoin, lastValueFrom, Observable, take } from 'rxjs';
 import { Student } from 'src/app/models/student.model';
@@ -63,7 +63,8 @@ export class PlanejamentoPage implements OnInit {
 
 
   constructor(private studentService: StudentService, private scheduleService: ScheduleService,
-    private navCtrl: NavController, private modalCtrl: ModalController, private datePipe: DatePipe
+    private navCtrl: NavController, private modalCtrl: ModalController, private datePipe: DatePipe,
+    private loadingCtrl: LoadingController
   ) {
     addIcons({
       'notifications': notifications,
@@ -284,38 +285,57 @@ export class PlanejamentoPage implements OnInit {
   
 
   //Placeholder para o modal de edição
-  async openEditModal(aula: ScheduleEntry) {
-    const alunos = this.students$.getValue();
+  async openEditModal(aulaResumida: ScheduleEntry) {
+    //Mostra um loading rápido enquanto buscamos os detalhes completos (como os dias da recorrência)
+    const loading = await this.loadingCtrl.create({message: 'Carregando detalhes...'});
+    await loading.present();
 
-    let selectedDateStr='';
+    this.scheduleService.getScheduleById(aulaResumida.id).subscribe({
+      next: async (res) => {
+        await loading.dismiss();
+        const aulaCompleta = res.data;
+        console.log("aula Completa no planejamento.page.ts");
+        console.dir(aulaCompleta);
 
-    if (aula.is_recurring && aula.day_of_week !== null) {
-      const dateObj = this.getDateForDayOfWeek(aula.day_of_week);
-      selectedDateStr = this.datePipe.transform(dateObj, 'yyyy-MM-dd') || '';
-    } else if (aula.specific_date) {
-      selectedDateStr = aula.specific_date;
-    }
+        //agora temos 'aulaCompleta' que tem 'recurrente_group_id' e 'active_days'
+        const alunos = this.students$.getValue();
 
-    const modal = await this.modalCtrl.create({
-      component: AddAulaModalComponent,
-      componentProps: {
-        aulaParaEditar: aula,
-        alunos: alunos,
-        alunoSelecionadoId: aula.student_id,
-        selectedDate: selectedDateStr
+        // cálculo da data selecionada
+        let selectedDateStr='';
+        if (aulaCompleta.is_recurring && aulaCompleta.day_of_week !== null) {
+          const dateObj = this.getDateForDayOfWeek(aulaCompleta.day_of_week);
+          selectedDateStr = this.datePipe.transform(dateObj, 'yyyy-MM-dd') || '';
+        } else if (aulaCompleta.specific_date) {
+          selectedDateStr = aulaCompleta.specific_date;
+        }
+
+        const modal = await this.modalCtrl.create({
+          component: AddAulaModalComponent,
+          componentProps: {
+            aulaParaEditar: aulaCompleta,
+            alunos: alunos,
+            alunoSelecionadoId: aulaCompleta.student_id,
+            selectedDate: selectedDateStr
+          },
+          breakpoints: [0, 0.9, 1],
+          initialBreakpoint: 0.9,
+          cssClass: 'add-aula-modal'
+        });
+
+        await modal.present();
+
+        const {data, role} = await modal.onWillDismiss();
+
+        if (role === 'confirm') {
+          this.loadSchedule();
+        }
+
       },
-      breakpoints: [0, 0.9, 1],
-      initialBreakpoint: 0.9,
-      cssClass: 'add-aula-modal'
+      error: async (err) => {
+        await loading.dismiss();
+        console.error("Erro ao carregar detalhes da aula", err);
+      }
     });
-
-    await modal.present();
-
-    const {data, role} = await modal.onWillDismiss();
-
-    if (role === 'confirm') {
-      this.loadSchedule();
-    }
 
   }
 
@@ -386,8 +406,8 @@ export class PlanejamentoPage implements OnInit {
     
     if (duration < 0) duration += (24*60);
     
-    const pixelsPerMinute = 1;
-    const baseHeight = 20;
+    const pixelsPerMinute = 0.8;
+    const baseHeight = 10;
 
     const calculatedHeight = (duration * pixelsPerMinute) + baseHeight;
     return Math.max(calculatedHeight, 90);
