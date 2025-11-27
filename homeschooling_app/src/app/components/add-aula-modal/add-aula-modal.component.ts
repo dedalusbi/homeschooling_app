@@ -367,21 +367,30 @@ export class AddAulaModalComponent  implements OnInit {
 
   private formatConflictError(conflicts: any[]): string {
     if (!conflicts || conflicts.length === 0) {
-      return 'Foi detectado um conflito de horário com uma aula existente;';
+      return 'Conflito de horário detectado.';
     }
 
-    const dayMap = ["Domingo", "Segunda-feira","Terça-feira","Quarta-feira",
-      "Quinta-feira","Sexta-feira","Sábado"];
-    
-    const firstConflict = conflicts[0];
-    const dayName = dayMap[firstConflict.day_of_week] || 'Um dia';
-    const subjectName = firstConflict.subject_name;
-    const startTime = firstConflict.start_time.substring(0,5);
+    const dayMap = ["Domingo", "Segunda","Terça","Quarta",
+      "Quinta","Sexta","Sábado"];
 
-    let message = `Conflito detectado: A aula de "${subjectName}" na ${dayName} às ${startTime} já está agendada.`;
+    const c = conflicts[0];
+    const start = c.start_time.substring(0,5);
+    const end = c.end_time.substring(0,5);
+
+    let diaInfo = '';
+    if (c.specific_date) {
+      //se for conflito com uma aula única, mostra a data (ex.: 25/11)
+      const [year, month, day] = c.specific_date.split('-');
+      diaInfo = `dia ${day}/${month}`;
+    } else if (c.day_of_week !== null) {
+      //se for conflito com recorrente, mostra o dia da semana
+      diaInfo = dayMap[c.day_of_week]
+    }
+
+    let message = `Conflito com a aula de ${c.subject_name} na ${diaInfo}, das ${start} às ${end}`;
 
     if (conflicts.length > 1) {
-      message += `(e mais ${conflicts.length -1} outro(s) conflito(s)).`;
+      message += ` (+ ${conflicts.length-1} outros(s) conflito(s))`;
     }
 
     return message;
