@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertController, IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonLabel, IonTextarea, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
-import { save, thumbsUpSharp } from 'ionicons/icons';
+import { person, save, thumbsUpSharp } from 'ionicons/icons';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -23,6 +23,7 @@ export class SubjectFormPage implements OnInit {
   studentId: string | null = null;
   subjectId: string | null = null;
   isLoading=false;
+  studentName: string | null = null;
 
   get f() {return this.subjectForm.controls;}
 
@@ -36,7 +37,8 @@ export class SubjectFormPage implements OnInit {
     private location: Location
   ) {
     addIcons({
-      'save': save
+      'save': save,
+      'person': person
     });
     this.subjectForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -47,7 +49,12 @@ export class SubjectFormPage implements OnInit {
   }
 
   ngOnInit() {
+    this.studentId = this.route.snapshot.paramMap.get('student_id');
     this.subjectId = this.route.snapshot.paramMap.get('id');
+
+    if (this.studentId) {
+      this.loadStudentName(this.studentId);
+    }
 
     if (this.subjectId) {
       //MODO EDIÇÃO
@@ -56,15 +63,12 @@ export class SubjectFormPage implements OnInit {
     } else {
       // MODO CRIAÇÃO
       this.pageTitle = 'Adicionar Matéria';
-      this.studentId = this.route.snapshot.paramMap.get('student_id');
       if (!this.studentId) {
         console.error("ID do aluno não fornecido para criar matéria.");
         this.presentAlert('Erro', 'Não foi possível identificar o aluno. Volte e tente novamente.');
         this.navCtrl.navigateBack('/tabs/alunos');
       }
-    }
-
-    
+    } 
   }
 
   async onSubmit() {
@@ -153,6 +157,15 @@ export class SubjectFormPage implements OnInit {
   async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({header, message, buttons: ['OK']});
     await alert.present();
-
   }
+
+  loadStudentName(studentId: string) {
+    this.studentService.getStudentById(studentId).subscribe({
+      next: (res) => {
+        this.studentName = res.data.name;
+      },
+      error: (err) => console.error("erro ao carregar nome do aluno", err)
+    });
+  }
+
 }

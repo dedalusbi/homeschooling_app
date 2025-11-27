@@ -9,6 +9,15 @@
 
 <ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
   <div class="p-6 text-texto-profundo md:max-w-md md:mx-auto md:pt-12">
+
+    <div class="flex items-center justify-center mb-6" *ngIf="studentName">
+      <div class="bg-blue-50 text-azul-sereno px-4 py-2 rounded-full flex items-center gap-2 shadow-sm border border-blue-100">
+        <ion-icon name="person" class="text-lg"></ion-icon>
+        <span class="text-sm font-medium">Aluno: <strong>{{studentName}}</strong></span>
+      </div>
+    </div>
+
+
     <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()">
       <div class="mb-5 bg-white rounded-lg p-3 shadow-sm">
         <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nome da matéria</ion-label>
