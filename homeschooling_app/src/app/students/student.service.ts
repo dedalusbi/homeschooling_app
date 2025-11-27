@@ -40,7 +40,7 @@ export class StudentService {
   }
 
   // Busca a lista de matérias de um aluno específico, filtrada por status
-  getSubjects(studentId: string, status: 'active' | 'completed' = 'active'): Observable<{data: Subject[]}> {
+  getSubjects(studentId: string, status: 'active' | 'completed' | 'all' = 'active'): Observable<{data: Subject[]}> {
     //Constrói os parâmetros de query
     const params = new HttpParams().set('filter[status]', status);
 

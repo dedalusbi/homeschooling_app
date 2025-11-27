@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonBackButton, IonButtons, IonCard, IonCardContent, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
+import { IonBackButton, IonButtons, IonCard, IonCardContent, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { Subject } from 'src/app/models/subject.model';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
@@ -17,7 +17,7 @@ import { Student } from 'src/app/models/student.model';
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,
     IonButtons, IonBackButton, IonItem, IonSelect, IonSelectOption,
     IonSegment, IonSegmentButton, IonSpinner, IonCard, IonCardContent,
-    IonIcon, IonFab, IonFabButton
+    IonIcon, IonFab, IonFabButton, IonLabel
   ]
 })
 export class ManageSubjectsPage implements OnInit {
@@ -25,7 +25,12 @@ export class ManageSubjectsPage implements OnInit {
   studentId: string | null = null;
   selectedStudentId: string | null = null;
   currentStatus: 'active' | 'completed' = 'active';
-  subjects: Subject[] = [];
+  allSubjects: Subject[] = [];
+  filteredSubjects: Subject[]=[];
+
+  activeCount: number = 0;
+  completedCount: number =0;
+
   students: Student[] = [];
   isLoading = true;
 
@@ -76,7 +81,7 @@ export class ManageSubjectsPage implements OnInit {
           this.loadSubjects();
         } else {
           this.isLoading=false;
-          this.subjects = [];
+          this.allSubjects = [];
         }
       },
       error: (err) => {
@@ -90,7 +95,7 @@ export class ManageSubjectsPage implements OnInit {
 
   segmentChanged(event: any) {
     this.currentStatus = event.detail.value;
-    this.loadSubjects();
+    this.filterSubjects();
   }
 
   onStudentChange() {
@@ -104,11 +109,14 @@ export class ManageSubjectsPage implements OnInit {
     if (!this.studentId) return;
 
     this.isLoading=true;
-    this.subjects=[];
-
-    this.studentService.getSubjects(this.studentId, this.currentStatus).subscribe({
+    
+    this.studentService.getSubjects(this.studentId, 'all').subscribe({
       next: (response) => {
-        this.subjects = response.data || [];
+        this.allSubjects = response.data || [];
+        this.activeCount = this.allSubjects.filter(s => s.status === 'active').length;
+        this.completedCount = this.allSubjects.filter(s => s.status === 'completed').length;
+
+        this.filterSubjects();
         this.isLoading=false;
       },
       error: (err) => {
@@ -116,6 +124,10 @@ export class ManageSubjectsPage implements OnInit {
         this.isLoading=false;
       }
     });
+  }
+
+  filterSubjects() {
+    this.filteredSubjects = this.allSubjects.filter(s => s.status === this.currentStatus);
   }
 
   goToAddSubject() {
