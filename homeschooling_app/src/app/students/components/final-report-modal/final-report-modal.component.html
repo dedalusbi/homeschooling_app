@@ -31,7 +31,15 @@
     </div>
 
     <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
-      <ion-label class="text-texto-profundo font-medium">Relatório Final *</ion-label>
+      
+      <div class="flex justify-between items-center mb-2">
+        <ion-label class="text-texto-profundo font-medium">Relatório Final *</ion-label>
+        <span class="text-xs" [class.text-vermelho-erro]="f['final_report'].value?.length < 100" [class.text-green-600]="f['final_report'].value?.length >= 100">
+          {{f['final_report'].value?.length || 0}}/100 caracteres mínimos.
+        </span>
+      </div>
+
+
       <div class="bg-white rounded-lg p-3 shadow-sm mt-2 mb-4">
         <ion-textarea
           formControlName="final_report"
