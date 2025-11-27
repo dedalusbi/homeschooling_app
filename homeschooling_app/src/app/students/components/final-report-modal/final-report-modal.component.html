@@ -56,7 +56,7 @@
       <h3 class="text-lg font-semibold text-texto-profundo">Resumo de Desempenho</h3>
       <div class="grid grid-cols-2 gap-3 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
-          <h2 class="text-2xl font-bold text-azul-sereno">{{subject.aulas_concluidas}}</h2>
+          <h2 class="text-2xl font-bold text-azul-sereno">{{subject.aulas_realizadas || 0}}</h2>
           <p class="text-xs text-texto-suave">Aulas Realizadas</p>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
@@ -64,7 +64,7 @@
           <p class="text-xs text-texto-suave">Nota média</p>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
-          <h2 class="text-2xl font-bold text-azul-sereno">85%</h2>
+          <h2 class="text-2xl font-bold text-azul-sereno">{{subject.participacao || 0}}%</h2>
           <p class="text-xs text-texto-suave">Participação</p>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">

@@ -13,5 +13,7 @@ export interface Subject {
     progresso?:number;
     teaching_materials?: string | null;
     history?: ActivityHistory[];
+    aulas_realizadas?: number;
+    participacao?: number;
 
 }
