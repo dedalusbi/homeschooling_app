@@ -81,6 +81,8 @@ export class SubjectDetailsPage implements OnInit {
       this.subject$.next(response);
       this.studentIdParam = response.data.student_id;
       this.currentSubject = response.data;
+      console.log("Carregando a matéria...");
+      console.dir(this.currentSubject);
     });
   }
 
