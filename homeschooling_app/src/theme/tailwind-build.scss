@@ -797,6 +797,10 @@ video {
   height: 0.5rem;
 }
 
+.h-20 {
+  height: 5rem;
+}
+
 .h-24 {
   height: 6rem;
 }
@@ -827,10 +831,6 @@ video {
 
 .h-full {
   height: 100%;
-}
-
-.h-20 {
-  height: 5rem;
 }
 
 .min-h-0 {
@@ -1043,6 +1043,12 @@ video {
 
 .overflow-x-auto {
   overflow-x: auto;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .whitespace-nowrap {
@@ -1349,6 +1355,10 @@ video {
 
 .text-\[10px\] {
   font-size: 10px;
+}
+
+.text-\[8px\] {
+  font-size: 8px;
 }
 
 .text-base {

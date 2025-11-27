@@ -7,6 +7,8 @@ export interface Student {
   grade_level?: string | null;
   individualities?: any; //jsonb
   avatar_id?: string | null;
+  activities_total_today?: number;
+  activities_completed_today?: number;
 
   inserted_at?:string;
   updated_at?:string;

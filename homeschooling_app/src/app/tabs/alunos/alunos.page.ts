@@ -21,6 +21,7 @@ export class AlunosPage implements OnInit {
 
   students$ = new BehaviorSubject<Student[] | null>(null);
   isLoading = true;
+  dashboardStats: any = {active_students: 0, average_progress: 0};
 
   constructor(private studentService: StudentService, private navCtrl: NavController) {
 
@@ -44,12 +45,16 @@ export class AlunosPage implements OnInit {
     this.loadStudents();
   }
 
+
+
   loadStudents() {
     this.isLoading=true;
     this.students$.next(null); //Reseta para null para mostrar loading se já houver dados antigos
 
     this.studentService.getStudents().subscribe({
       next: (response) => {
+        console.log("Em alunos.page.ts. resultado do getStudents()");
+        console.dir(response);
         this.students$.next(response.data || []);
         this.isLoading = false;
       },
@@ -58,6 +63,10 @@ export class AlunosPage implements OnInit {
         this.students$.next([]);
         this.isLoading=false;
       }
+    });
+
+    this.studentService.getDashboardStats().subscribe( res => {
+      this.dashboardStats = res.data;
     });
 
   }

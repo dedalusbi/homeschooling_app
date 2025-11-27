@@ -81,4 +81,9 @@ export class StudentService {
     return this.http.delete<any>(`${this.apiUrl}/subjects/${subjectId}`);
   }
 
+
+  getDashboardStats() {
+    return this.http.get<{data:{active_students: number, average_progress: number}}>(`${this.apiUrl}/dashboard/stats`);
+  }
+
 }
