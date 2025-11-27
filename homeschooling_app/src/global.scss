@@ -50,13 +50,27 @@ ion-button[shape="round"] {
 
 
 .report-alert {
-    .alert-message {
+    
+    --min-width: 80%;
+    --max-width: 600px;
+    
+    .alert-wrapper {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .alert-message {  
         white-space: pre-wrap !important;
 
-        max-height: 400px;
+        max-height: 60vh;
         overflow-y: auto;
-
         text-align: left;
         line-height: 1.6;
+        font-size: 14px;
+        color: var(--ion-color-step-600, #666)
+    }
+
+    .alert-head{
+        text-align: left;
     }
 }

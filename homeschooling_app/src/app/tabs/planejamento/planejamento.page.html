@@ -87,6 +87,13 @@
                   <p class="text-xs text-texto-suave">{{formatTime(aula.start_time)}} - {{formatTime(aula.end_time)}}</p>
                   <h3 class="font-semibold text-texto-profundo">{{aula.subject_name}}</h3>
                   <p *ngIf="selectedStudentId === 'all'" class="text-xs text-texto-suave"> {{aula.student_name}}</p>
+                  <div *ngIf="(aula.status === 'completed' || aula.status === 'missed') && aula.log_notes"
+                        class="bg-yellow-50 rounded-md border border-yellow-100 flex items-start gap-1 max-w-full overflow-hidden scale-75 origin-left">
+                    <ion-icon name="document-text" class="text-yellow-600 text-xs mt-0.5 flex-shrink-0"></ion-icon>
+                    <p class="text-[10px] text-texto-profundo italic leading-none line-clamp-2">
+                      {{aula.log_notes.length > 25 ? (aula.log_notes | slice:0:25) + '...' : aula.log_notes}}
+                    </p>
+                  </div>
                 </div>
                 <div class="flex items-center space-x-1" (click)="$event.stopPropagation()">
                   <ion-avatar class="w-6 h-6 border border-linha-sutil">

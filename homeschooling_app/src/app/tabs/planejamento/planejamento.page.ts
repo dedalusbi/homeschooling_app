@@ -8,7 +8,7 @@ import { Student } from 'src/app/models/student.model';
 import { StudentService } from 'src/app/students/student.service';
 import { ScheduleService } from 'src/app/schedule/schedule-service';
 import { addIcons } from 'ionicons';
-import { add, bookmark, calendar, calendarClear, calendarNumber, checkmarkCircle, chevronBack, chevronForward, ellipse, notifications, star } from 'ionicons/icons';
+import { add, bookmark, calendar, calendarClear, calendarNumber, checkmarkCircle, chevronBack, chevronForward, documentText, ellipse, notifications, star } from 'ionicons/icons';
 import { group } from '@angular/animations';
 import { Subject } from 'src/app/models/subject.model';
 import { AddAulaModalComponent } from 'src/app/components/add-aula-modal/add-aula-modal.component';
@@ -76,7 +76,8 @@ export class PlanejamentoPage implements OnInit {
       'calendar-number': calendarNumber,
       'calendar-clear': calendarClear,
       'checkmark-circle': checkmarkCircle,
-      'ellipse': ellipse
+      'ellipse': ellipse,
+      'document-text': documentText
     });
 
     this.updateWeekDisplay();
