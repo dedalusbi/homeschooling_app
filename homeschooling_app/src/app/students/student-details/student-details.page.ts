@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AlertController, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonHeader, IonIcon, IonLabel, IonSpinner, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
+import { AlertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonChip, IonContent, IonHeader, IonIcon, IonLabel, IonSpinner, IonTitle, IonToolbar, LoadingController, NavController } from '@ionic/angular/standalone';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { StudentService } from '../student.service';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { add, calendar, camera, checkmark, create, createOutline, person, trash } from 'ionicons/icons';
+import { add, calendar, camera, checkmark, close, create, createOutline, person, trash } from 'ionicons/icons';
 import { Student } from 'src/app/models/student.model';
+import { Auth } from 'src/app/auth/auth';
 
 @Component({
   selector: 'app-student-details',
@@ -16,13 +17,14 @@ import { Student } from 'src/app/models/student.model';
   standalone: true,
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonButtons,
     IonBackButton, IonButton, IonIcon, IonLabel, IonSpinner, IonCard, IonCardContent,
-    IonChip
+    IonChip, IonAvatar
   ]
 })
 export class StudentDetailsPage implements OnInit {
 
   student$: Observable<{data: Student} | null> = EMPTY; 
   studentId: string | null = null;
+  currentUserId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,7 +32,8 @@ export class StudentDetailsPage implements OnInit {
     private navCtrl: NavController,
     private location: Location,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private authService: Auth
   ) {
     addIcons({
       'camera': camera,
@@ -40,8 +43,10 @@ export class StudentDetailsPage implements OnInit {
       'checkmark': checkmark,
       'create': create,
       'create-outline': createOutline,
-      'trash': trash
+      'trash': trash,
+      'close': close
     });
+    this.currentUserId = this.authService.currentUserId;
   }
 
   ngOnInit() {
@@ -152,4 +157,8 @@ export class StudentDetailsPage implements OnInit {
     const alert = await this.alertCtrl.create({ header, message, buttons: ['OK'] });
     await alert.present();
   }
+
+
+
+
 }

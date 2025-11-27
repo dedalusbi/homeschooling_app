@@ -77,19 +77,32 @@
     <div class="mt-8">
       <div class="flex justify-between items-center mb-2">
         <h2 class="text-lg font-semibold text-texto-profundo">Responsáveis</h2>
-        <span class="text-xs text-texto-suave bg-gray-100 px-2 py-0.5 rounded-full">1/1</span>
+        <span class="text-xs text-texto-suave bg-gray-100 px-2 py-0.5 rounded-full">
+          {{student.guardians?.length || 0 }}/3
+        </span>
       </div>
-      <!--Lista de responsáveis (placeholder)-->
-      <ion-card class="m-0 rounded-xl shadow-sm bg-white">
-        <ion-card-content class="flex items-center space-x-3 p-3">
-          <img src="assets/placeholder-avatar.png" class="border-2 border-verde-crescimento w-10 h-10 rounded-full object-cover">
-          <div class="flex-grow">
-            <h3 class="font-medium text-texto-profundo">Seu Nome Aqui</h3>
-            <p class="text-xs text-texto-suave">Você</p>
-          </div>
-          <ion-chip color="sucess" class="text-xs h-5 px-2">Principal</ion-chip>
-        </ion-card-content>
-      </ion-card>
+      <!--Lista de responsáveis -->
+      <div class="space-y-2">
+        <ion-card *ngFor="let guardian of student.guardians" class="m-0 rounded-xl shadow-sm bg-white">
+          <ion-card-content class="flex items-center space-x-3 p-3">
+            <ion-avatar class="w-10 h-10 border border-linha-sutil">
+              <img [src]="'assets/avatars/'+(guardian.avatar_id || 'placeholder.png')" alt="Avatar" class="object-cover">
+            </ion-avatar>
+            <div class="flex-grow">
+              <h3 class="font-medium text-texto-profundo">{{guardian.name}}
+                <span *ngIf="guardian.user_id === currentUserId" class="text text-texto-suave font-normal"> (Você)</span>
+              </h3>
+              <p class="text-xs text-texto-suave">{{guardian.email}}</p>
+            </div>
+            <ion-chip *ngIf="guardian.user_id === currentUserId" color="sucess" outline="true" class="text-xs h-5 px-2">Principal</ion-chip>
+            <ion-button *ngIf="guardian.user_id !== currentUserId" fill="clear" color="danger" size="small"
+              >
+              <ion-icon slot="icon-only" name="close"></ion-icon>
+
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
       <!--Botão convidar (placeholder)-->
       <ion-button expand="block" shape="round" class="meu-botao-gradiente h-12 text-base normal-case text-white mt-4 shadow-md" (click)="inviteGuardian()">
         <ion-icon name="add" slot="start"></ion-icon>
