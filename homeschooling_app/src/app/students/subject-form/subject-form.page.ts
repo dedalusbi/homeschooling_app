@@ -140,6 +140,11 @@ export class SubjectFormPage implements OnInit {
           teaching_materials: subjectData.teaching_materials
         });
         this.studentId = subjectData.student_id;
+
+        if (this.studentId) {
+          this.loadStudentName(this.studentId);
+        }
+
         this.isLoading = false;
         await loading.dismiss();
       },
