@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {Student} from '../models/student.model';
 import { Subject } from '../models/subject.model';
+import { Assessment } from '../models/assessment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,14 @@ export class StudentService {
 
   getDashboardStats() {
     return this.http.get<{data:{active_students: number, average_progress: number}}>(`${this.apiUrl}/dashboard/stats`);
+  }
+
+  createAssessment(subjectId: string, assessmentData: any): Observable<{data: Assessment}> {
+    return this.http.post<{data: Assessment}>(
+      `${this.apiUrl}/subjects/${subjectId}/assessments`, {
+        assessment: assessmentData
+      }
+    );  
   }
 
 }

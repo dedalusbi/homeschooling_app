@@ -1,0 +1,70 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-title class="text-texto-profundo font-medium text-center">{{isEditMode ? 'Editar Avaliação' : 'Nova Avaliação'}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss(null)">
+        <ion-icon name="close" slot="icon-only" class="text-texto-suave"> </ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-header>
+
+<ion-content class="[--background:theme(colors.fundo-neutro)]">
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-4 space-y-4">
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Título da Avaliação</ion-label>
+      <ion-input formControlName="title" placeholder="Ex.: Prova Bimestral de Matemática" class="text-base"></ion-input>
+      <div *ngIf="f['title'].invalid && f['title'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
+    </div>
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Data da Avaliação</ion-label>
+      <ion-item button="true" details="false" lines="none" id="open-date-modal" class="border border-linha-sutil rounded-md h-10 px-3">
+        <ion-label class="text-sm">{{ f['assessment_date'].value ? (f['assessment_date'].value | date:'dd/MM/yyyy') : 'dd/mm/aaaa' }}</ion-label>
+        <ion-icon name="calendar" slot="end" class="text-texto-suave"></ion-icon>
+      </ion-item>
+      <ion-modal trigger="open-date-modal" [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime #assessmentDatePicker presentation="date" formControlName="assessment_date" (ionChange)="f['assessment_date'].markAsDirty()" [min]="f['assessment_date'].value || ''">
+            <ion-buttons slot="buttons">
+              <ion-button color="danger" (click)="assessmentDatePicker.reset(); assessmentDatePicker.confirm(true)">Limpar</ion-button>
+              <ion-button color="medium" (click)="assessmentDatePicker.cancel(true)">Cancelar</ion-button>
+              <ion-button color="primary" (click)="assessmentDatePicker.confirm(true)">OK</ion-button>
+            </ion-buttons>
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+      <div *ngIf="f['assessment_date'].invalid && f['assessment_date'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
+    </div>
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Nota/Conceito</ion-label>
+      <ion-input formControlName="grade" placeholder="Resultado da avaliação" class="text-base"></ion-input>
+      <div *ngIf="f['grade'].invalid && f['grade'].touched" class="text-vermelho-erro text-xs ml-1 mt-1">Obrigatório.</div>
+    </div>
+
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <ion-label position="stacked" class="text-xs text-texto-suave mb-1 ml-1">Anotações</ion-label>
+      <ion-textarea formControlName="notes" placeholder="Comentários sobre o desempenho..." [autoGrow]="true" rows="3"></ion-textarea>
+    </div>
+
+    <div>
+      Formulário Inválido: {{ form.invalid }} <br>
+      Title Inválido?: {{ f['title']?.invalid }} <br>
+      Data Inválida?: {{ f['assessment_date']?.invalid }} <br>
+      Nota Inválida?: {{ f['grade']?.invalid }}
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-fundo-neutro border-t border-linha-sutil flex gap-3">
+      <ion-button fill="outline" expand="block" class="flex-1 text-texto-suave border-linha-sutil" (click)="dismiss(null)">
+        Cancelar
+      </ion-button>
+      <ion-button type="submit" expand="block" class="flex-1 bg-azul-sereno text-white" [disabled]="form.invalid">
+        <ion-icon name="save" slot="start"></ion-icon> Salvar
+      </ion-button>
+    </div>
+    
+  </form>
+
+</ion-content>

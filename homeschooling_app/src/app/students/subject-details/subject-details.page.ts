@@ -9,6 +9,7 @@ import { StudentService } from '../student.service';
 import { addIcons } from 'ionicons';
 import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text, trash } from 'ionicons/icons';
 import { FinalReportModalComponent } from '../components/final-report-modal/final-report-modal.component';
+import { AssessmentModelComponent } from '../components/assessment-model/assessment-model.component';
 
 @Component({
   selector: 'app-subject-details',
@@ -95,7 +96,19 @@ export class SubjectDetailsPage implements OnInit {
   }
 
   //Placeholders para ações (a implementar)
-  goToAddEvaluation() {console.log('Navegar para adicionar avaliação');}
+  async goToAddEvaluation() {
+    if (!this.subjectId) return;
+    const modal = await this.modalCtrl.create({
+      component: AssessmentModelComponent,
+      componentProps: {subjectId: this.subjectId}
+    });
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
+    if (data) {
+      //recarrega a matéria para mostrar a nova avaliação
+      this.loadSubject(this.subjectId);
+    }
+  }
   goToEvaluationDetails(id: string) {console.log('Navegar para detalhes avaliação');}
   
 

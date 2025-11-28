@@ -1,4 +1,5 @@
 import { ActivityHistory } from "./activity-history.model";
+import { Assessment } from "./assessment.model";
 
 export interface Subject {
 
@@ -15,5 +16,5 @@ export interface Subject {
     history?: ActivityHistory[];
     aulas_realizadas?: number;
     participacao?: number;
-
+    assessments?: Assessment[];
 }
