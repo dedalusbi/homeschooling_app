@@ -1,3 +1,5 @@
+import { AssessmentAttachment } from "./assessment-attachment.model";
+
 export interface Assessment {
     id: string;
     subject_id: string;
@@ -5,4 +7,5 @@ export interface Assessment {
     assessment_date: string;
     grade: string;
     notes?: string;
+    attachments?: AssessmentAttachment[];
 }

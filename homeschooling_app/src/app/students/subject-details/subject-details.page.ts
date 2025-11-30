@@ -110,8 +110,39 @@ export class SubjectDetailsPage implements OnInit {
       this.loadSubject(this.subjectId);
     }
   }
-  goToEvaluationDetails(id: string) {console.log('Navegar para detalhes avaliação');}
-  
+
+  async goToEvaluationDetails(assessmentId: string) {
+    const currentSubjectData = this.subject$.getValue()?.data;
+    
+    if (!currentSubjectData || !currentSubjectData.assessments) return;
+    const assessmentToEdit = currentSubjectData.assessments.find(a => a.id === assessmentId);
+
+    if (!assessmentToEdit) {
+      console.error("Avaliação não encontrada na lista local.");
+      return;
+    }
+
+    // 2. Cria o modal passando a avaliação para edição
+    const modal = await this.modalCtrl.create({
+      component: AssessmentModelComponent,
+      componentProps: {
+        subjectId: this.subjectId,      // ID da matéria pai
+        assessmentToEdit: assessmentToEdit // O objeto completo para preencher o form
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+
+    if (data) {
+      console.log("Alteração realizada na avaliação. Recarregando matéria...");
+      
+      if (this.subjectId) {
+          this.loadSubject(this.subjectId);
+      }
+    }
+  }
 
   async confirmFinishSubject() {
     if (!this.currentSubject) return;

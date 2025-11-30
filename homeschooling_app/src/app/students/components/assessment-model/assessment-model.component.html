@@ -50,21 +50,69 @@
     </div>
 
     <div>
-      Formulário Inválido: {{ form.invalid }} <br>
-      Title Inválido?: {{ f['title']?.invalid }} <br>
-      Data Inválida?: {{ f['assessment_date']?.invalid }} <br>
-      Nota Inválida?: {{ f['grade']?.invalid }}
+      <ion-label class="text-sm text-texto-profundo font-medium block mb-2">Fotos e Documentos</ion-label>
+
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        style="display: none;"
+        accept="image/*,application/pdf"
+        multiple
+      />
+
+      
+      <div class="flex gap-2 overflow-x-auto pb-2">
+        <div class="w-20 h-20 rounded-lg border-2 border-dashed border-linha-sutil flex flex-col items-center justify-center text-texto-suave cursor-pointer bg-gray-50 hover:bg-gray-100"
+          (click)="fileInput.click()">
+          <ion-spinner *ngIf="isUploading" name="crescent"></ion-spinner>
+          <div *ngIf="!isUploading" class="flex flex-col items-center">
+            <ion-icon name="camera" class="text-2xl mb-1"></ion-icon>
+            <span class="text-[10px]">Adicionar</span>
+          </div>          
+        </div>
+
+        <div *ngFor="let att of attachments" class="relative w-20 h-20 flex-shrink-0">
+          <ng-container *ngIf="isImage(att)">
+            <img [src]="att.file_url" class="w-full h-full object-cover rounded-lg border border-linha-sutil"
+                  (click)="openImage(att.file_url)">
+          </ng-container>
+          <ng-container *ngIf="!isImage(att)">
+            <div *ngIf="!att.file_type.startsWith('image')" class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-linha-sutil text-texto-profundo"
+                        (click)="openImage(att.file_url)">
+              <ion-icon name="document-text" class="text-2xl"></ion-icon>
+              <span class="text-[8px] w-full truncate text-center">{{ att.file_name?.length > 10 ? (att.file_name | slice:0:10) + '...' : att.file_name }}</span>
+            </div>
+          </ng-container>
+          
+        </div>
+
+      </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-fundo-neutro border-t border-linha-sutil flex gap-3">
-      <ion-button fill="outline" expand="block" class="flex-1 text-texto-suave border-linha-sutil" (click)="dismiss(null)">
-        Cancelar
-      </ion-button>
-      <ion-button type="submit" expand="block" class="flex-1 bg-azul-sereno text-white" [disabled]="form.invalid">
-        <ion-icon name="save" slot="start"></ion-icon> Salvar
-      </ion-button>
-    </div>
+  <div class="flex gap-3">
+    <ion-button *ngIf="isEditMode" 
+                fill="clear" 
+                color="danger" 
+                class="flex-none normal-case" 
+                (click)="deleteAssessment()">
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+    </ion-button>
+
+    <ion-button fill="outline" expand="block" class="flex-1 text-texto-suave border-linha-sutil normal-case" (click)="dismiss(null)">
+      Cancelar
+    </ion-button>
+    
+    <ion-button type="submit" expand="block" class="flex-1 [--background:theme(colors.azul-sereno)] text-white normal-case" [disabled]="form.invalid">
+      <ion-icon name="save" slot="start"></ion-icon> Salvar
+    </ion-button>
+  </div>
+
+    
     
   </form>
+
+
+ 
 
 </ion-content>

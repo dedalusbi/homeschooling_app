@@ -1,6 +1,6 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {Student} from '../models/student.model';
 import { Subject } from '../models/subject.model';
@@ -12,8 +12,11 @@ import { Assessment } from '../models/assessment.model';
 export class StudentService {
 
   private apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient){}
+  //Cliente HTTP especial que ignora interceptores (para chamadas externas como S3)
+  private externalHttp: HttpClient;
+  constructor(private http: HttpClient,  private handler: HttpBackend){
+    this.externalHttp = new HttpClient(handler);
+  }
   
 
   //Cria um novo aluno para o usuário logado
@@ -95,4 +98,52 @@ export class StudentService {
     );  
   }
 
+  
+  getAssessmentPresignedUrl(filename: string, fileType: string) {
+    return this.http.get<{data: {upload_url: string, public_url: string}}>(`${this.apiUrl}/assessments/upload_url`, {params: {filename, type: fileType}});
+  }
+
+  //Fazer upload para o S3 (PUT direto)
+  private uploadToS3(uploadUrl: string, file: File) {
+    return this.externalHttp.put(uploadUrl, file, {
+      headers: {'Content-Type': file.type}
+    });
+  }
+
+  registerAssessmentAttachment(assessmentId: string, fileUrl: string, fileType: string, fileName: string) {
+    return this.http.post(`${this.apiUrl}/assessments/${assessmentId}/attachments`, {
+      attachment: {file_url: fileUrl, file_type: fileType, file_name: fileName}
+    });
+  }
+
+  uploadAssessmentFileFlow(file: File, assessmentId: string): Observable<any> {
+      const filename = file.name; //ex tarefa.pdf
+      const filetype = file.type; //application/pdf
+  
+      //encadeia as chamadas: Pegar URL -> Enviar S3 -> Registrar no banco
+      return this.getAssessmentPresignedUrl(filename, filetype).pipe(
+        switchMap(res => {
+          const {upload_url, public_url} = res.data;
+          //faz o upload e, quando terminar, retorna os dados para o próximo passo
+          return this.uploadToS3(upload_url, file).pipe(
+            switchMap(() => {
+              return this.registerAssessmentAttachment(assessmentId, public_url, filetype, filename);
+            })
+          );
+        })
+      );
+    }
+
+  updateAssessment(assessmentId: string, assessmentData: any): Observable<{ data: Assessment }> {
+    // Envia um PUT para /api/assessments/:id
+    return this.http.put<{ data: Assessment }>(
+      `${this.apiUrl}/assessments/${assessmentId}`,
+      { assessment: assessmentData }
+    );
+  }
+
+  deleteAssessment(assessmentId: string): Observable<void> {
+    // Envia um DELETE para /api/assessments/:id
+    return this.http.delete<void>(`${this.apiUrl}/assessments/${assessmentId}`);
+  }
 }
