@@ -7,7 +7,7 @@ import { Subject } from 'src/app/models/subject.model';
 import { ActivatedRoute } from '@angular/router';
 import { StudentService } from '../student.service';
 import { addIcons } from 'ionicons';
-import { add, arrowUndo, body, book, calculator, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text, trash } from 'ionicons/icons';
+import { add, arrowUndo, body, book, calculator, checkmarkCircleOutline, checkmarkDone, chevronForward, create, documentText, flask, helpCircle, informationCircle, musicalNotes, pencil, people, text, trash } from 'ionicons/icons';
 import { FinalReportModalComponent } from '../components/final-report-modal/final-report-modal.component';
 import { AssessmentModelComponent } from '../components/assessment-model/assessment-model.component';
 
@@ -50,6 +50,7 @@ export class SubjectDetailsPage implements OnInit {
       'document-text': documentText,
       'people': people,
       'chevron-forward': chevronForward,
+      'checkmark-circle-outline': checkmarkCircleOutline,
       'add': add,
       'help-circle': helpCircle,
       'information-circle': informationCircle,
@@ -319,4 +320,44 @@ export class SubjectDetailsPage implements OnInit {
     });
     await alert.present();
   }
+
+  //tenta deduzir a cor (status) baseada numa string de nota livre.
+  getGradeColor(gradeInput: string | undefined | null): string {
+    if (!gradeInput) return 'medium';
+
+    const input = gradeInput.trim().toUpperCase();
+
+    //tenta interpretar como número
+    //substitui vírgula pro ponto para fazer o parde correto
+    const numericValue = parseFloat(input.replace(',', '.'));
+    if (!isNaN(numericValue)) {
+      let score = numericValue;
+      if (score > 10 && score <= 100) {
+        score = score / 10;
+      }
+      if (score >= 7) return 'success';
+      if (score >= 5) return 'warning';
+      return 'danger';
+    }
+    //tenta interpretar como LETRA (sistema americano)
+    //verifica o primeiro caractere para cobrir casos como A+, B-, etc...
+    if (input.startsWith('A') || input.startsWith('B')) return 'success'; // Verde
+    if (input.startsWith('C')) return 'warning'; // Amarelo
+    if (input.startsWith('D') || input.startsWith('E') || input.startsWith('F')) return 'danger'; // Vermelho
+
+    // 3. Tenta interpretar por PALAVRAS CHAVE (Português)
+    const positiveWords = ['ÓTIMO', 'OTIMO', 'EXCELENTE', 'BOM', 'MUITO BOM', 'PARABÉNS', 'APROVADO', 'SUPEROU'];
+    const neutralWords = ['REGULAR', 'MÉDIO', 'MEDIO', 'SATISFATÓRIO', 'SATISFATORIO', 'NA MÉDIA', 'NORMAL'];
+    const negativeWords = ['RUIM', 'PÉSSIMO', 'PESSIMO', 'INSUFICIENTE', 'REPROVADO', 'BAIXO', 'FRACO'];
+
+    if (negativeWords.some(w => input.includes(w))) return 'danger';
+    if (neutralWords.some(w => input.includes(w))) return 'warning';
+    if (positiveWords.some(w => input.includes(w))) return 'success';
+
+    // 4. Default (O que não previmos)
+    // Conforme solicitado: Verde de sucesso
+    return 'success';
+  }
+
+
 }

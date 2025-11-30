@@ -81,21 +81,33 @@
             Adicionar
           </ion-button>
         </div>
-        <div class="space-y-2">
-          <ion-card button="true" (click)="goToEvaluationDetails('1')" class="m-0 rounded-xl shadow-sm bg-white">
+        <div *ngIf="subject.assessments && subject.assessments.length > 0; else noAssessments" class="space-y-2">
+          <ion-card *ngFor="let assessment of subject.assessments" button="true" (click)="goToEvaluationDetails(assessment.id)" class="m-0 rounded-xl shadow-sm bg-white">
             <ion-card-content class="flex items-center space-x-3 p-3">
               <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
                 <ion-icon name="document-text" class="text-lg text-green-600"></ion-icon>
               </div>
               <div class="flex-grow">
-                <h4 class="font-medium text-texto-profundo">Prova Mensal</h4>
-                <p class="text-xs text-texto-suave">Realizada em 15/10/2024</p>
+                <h4 class="font-medium text-texto-profundo">{{assessment.title}}</h4>
+                <p class="text-xs text-texto-suave">Realizada em {{assessment.assessment_date | date:'dd/MM/yyyy'}}</p>
+                <div *ngIf="assessment.notes"
+                      class="bg-yellow-50 rounded-md border border-yellow-100 flex items-start gap-1 max-w-full overflow-hidden scale-75 origin-left">
+                  <ion-icon name="document-text" class="text-yellow-600 text-xs mt-0.5 flex-shrink-0"></ion-icon>
+                  <p class="text-[10px] text-texto-profundo italic leading-none line-clamp-2">
+                    {{assessment.notes.length > 25 ? (assessment.notes | slice:0:25) + '...' : assessment.notes}}
+                  </p>
+                </div>
               </div>
-              <ion-chip color="success" class="text-sm font-bold h-7 w-7 flex items-center justify-center">10</ion-chip>
+              <ion-chip [color]="getGradeColor(assessment.grade)" class="text-sm font-bold min-w-[2rem] h-7 w-7 flex items-center justify-center">
+                {{assessment.grade}}
+              </ion-chip>
               <ion-icon name="chevron-forward" class="text-texto-suave text-lg ml-1"></ion-icon>
             </ion-card-content>
           </ion-card>
         </div>
+        <ng-template #noAssessments>
+          <p class="text-sm text-texto-suave italic text-center py-4">Nenhuma avaliação registrada.</p>
+        </ng-template>
       </div>
 
     </ng-container>
