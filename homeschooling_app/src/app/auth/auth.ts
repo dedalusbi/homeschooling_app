@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from 'jwt-decode';
+import { User } from '../models/user.model';
 
 //Definindo uma chave constante para o token (boa prática)
 const AUTH_TOKEN_KEY = 'authToken';
@@ -203,6 +204,10 @@ export class Auth {
   verifyEmail(token: string) {
     // Assumindo endpoint POST /api/users/verify com { token: "..." }
     return this.http.post<{message: string}>(`${this.apiUrl}/users/verify`, { token });
+  }
+
+  getProfile() {
+    return this.http.get<{data: User}>(`${this.apiUrl}/me`);
   }
 
 }

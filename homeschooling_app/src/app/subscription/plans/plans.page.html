@@ -89,8 +89,8 @@
           <span class="font-semibold text-texto-profundo">Prioritário</span>
         </li>
       </ul>
-      <ion-button (click)="subscribe('family')" expand="block" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
-        Fazer Upgrade
+      <ion-button (click)="subscribe('family')" expand="block" [color]="getButtonState('family').color" [disabled]="getButtonState('family').action === current" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
+        {{ getButtonState('family').label }}
       </ion-button>
 
     </div>
@@ -131,8 +131,8 @@
           <span class="font-semibold text-texto-profundo">Prioritário</span>
         </li>
       </ul>
-      <ion-button (click)="subscribe('educator')" expand="block" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.azul-sereno)]">
-        Fazer Upgrade
+      <ion-button (click)="subscribe('educator')" expand="block" [color]="getButtonState('educator').color" [disabled]="getButtonState('educator').action === current" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
+        {{ getButtonState('educator').label }}
       </ion-button>
     </div>
 

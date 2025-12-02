@@ -73,6 +73,11 @@ export const routes: Routes = [
     canActivate: [authGuard] //qualquer tentativa de ir para /tabs/... passará pelo guard.
   },
 
+  {
+    path: 'plans',
+    loadComponent: () => import('./subscription/plans/plans.page').then( m => m.PlansPage),
+    canActivate: [authGuard]
+  },
 
   //Rota de fallback
   {
@@ -91,7 +96,6 @@ export const routes: Routes = [
     path: 'subject-details',
     loadComponent: () => import('./students/subject-details/subject-details.page').then( m => m.SubjectDetailsPage)
   },
-  
   
   
 

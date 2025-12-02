@@ -1,0 +1,87 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:theme(colors.fundo-neutro)]">
+    <ion-buttons slot="start">
+    </ion-buttons>
+    <ion-title class="text-texto-profundo font-bold">Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="[--background:theme(colors.fundo-neutro)]">
+  <div class="p-4 pb-24" *ngIf="user">
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm mb-6 flex flex-col items-center text-center">
+      <div class="relative mb-3">
+        <div class="w-20 h-20 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm">
+          <img [src]="'assets/avatars/' + (user?.avatar_id || 'placeholder.png')" alt="Avatar" class="w-full h-full object-cover">
+        </div>
+      </div>
+
+      <h2 class="text-lg font-bold text-texto-profundo">{{user?.full_name}}</h2>
+      <p class="text-sm text-texto-suave">{{user?.email}}</p>
+
+      <ion-button fill="outline" shape="round" color="medium" class="h-9 text-xs normal-case">
+        <ion-icon name=create slot="start"></ion-icon>
+        Editar Perfil
+      </ion-button>
+    </div>
+
+    <div class="rounded-2xl p-6 shadow-lg mb-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #3A5A92 0%, #5A7CB2 100%);">
+      <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
+        Ativo
+      </div>
+      <p class="text-sm opacity-90 mb-1">Seu Plano Atual</p>
+      <h3 class=" text-2xl font-bold flex items-center gap-2 mb-2 capitalize">
+        {{user?.subscription_tier === 'essential' ? 'Gratuito' : (user?.subscription_tier === 'family' ? 'Família' : 'Educador')}}
+        <ion-icon *ngIf="user?.subscription_tier !== 'essential'" name="diamond" class="text-amarelo-foco"></ion-icon>
+      </h3>
+
+      <p class="text-xs opacity-75 mb-6">Válido até 15/11/2026</p>
+
+      <ion-button expand="block" color="light" class="h-11 text-azul-sereno font-bold normal-case" (click)="manageSubscription()">
+        {{user?.subscription_tier === 'essential' ? 'Fazer Upgrade' : 'Gerenciar Assinatura' }}
+      </ion-button>
+
+    </div>
+
+
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <ion-item button detail lines="full" class="--padding-start: 16px">
+        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mr-3" slot="start">
+          <ion-icon name="document-text"></ion-icon>
+        </div>
+        <ion-label class="text-sm font-medium text-texto-profundo">Biblioteca de Modelos</ion-label>
+      </ion-item>
+
+      <ion-item button detail lines="full" class="--padding-start: 16px">
+        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mr-3" slot="start">
+          <ion-icon name="stats-chart"></ion-icon>
+        </div>
+        <ion-label class="text-sm font-medium text-texto-profundo">Gerar Relatórios</ion-label>
+      </ion-item>
+
+      <ion-item button detail lines="full" class="--padding-start: 16px">
+        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mr-3" slot="start">
+          <ion-icon name="download"></ion-icon>
+        </div>
+        <ion-label class="text-sm font-medium text-texto-profundo">Exportar Meus Dados</ion-label>
+      </ion-item>
+
+      <ion-item button detail lines="full" class="--padding-start: 16px">
+        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mr-3" slot="start">
+          <ion-icon name="settings"></ion-icon>
+        </div>
+        <ion-label class="text-sm font-medium text-texto-profundo">Configurações</ion-label>
+      </ion-item>
+
+      <ion-item button lines="none" (click)="logout()">
+        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center mr-3" slot="start">
+          <ion-icon name="log-out"></ion-icon>
+        </div>
+        <ion-label class="text-sm font-medium text-red-500">Sair</ion-label>
+      </ion-item>
+
+    </div>
+
+
+  </div>
+</ion-content>

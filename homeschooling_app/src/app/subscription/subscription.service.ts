@@ -20,5 +20,13 @@ export class SubscriptionService {
       }
     );
   }
+
+  changePlan(planKey: string): Observable<{ message: string }> {
+    // Envia um POST para /api/subscriptions/change
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/subscriptions/change`,
+      { plan: planKey }
+    );
+  }
   
 }

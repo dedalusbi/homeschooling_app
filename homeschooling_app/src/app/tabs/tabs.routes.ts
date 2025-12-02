@@ -55,10 +55,10 @@ export const routes: Routes = [
     path: 'planejamento',
     loadComponent: () => import('./planejamento/planejamento.page').then( m => m.PlanejamentoPage)
   },
+  
   {
-    path: 'plans',
-    loadComponent: () => import('../subscription/plans/plans.page').then( m => m.PlansPage),
-    canActivate: [authGuard]
+    path: 'profile',
+    loadComponent: () => import('./profile/profile.page').then( m => m.ProfilePage)
   }
   
 ];
