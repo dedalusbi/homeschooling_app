@@ -5,6 +5,6 @@ export interface User {
     subscription_tier: 'essential' | 'family' | 'educator';
     avatar_id?: string;
     cancel_at_period_end: boolean;
-    stripe_subscription_id: string;
+    payment_gateway_customer_id: string;
     current_period_end: Date;
 }

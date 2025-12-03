@@ -65,31 +65,40 @@ export class PlansPage implements OnInit {
 
     const state = this.getButtonState(planKey);
 
-    if (state.action === 'current' || state.action === 'disabled') return;
+    if (state.action === 'current' || state.action === 'disabled') {
+      await loading.dismiss();
+      return;
+    }
 
     //Aviso de downgrade
     if (state.action === 'downgrade') {
+      await loading.dismiss();
       const alert = await this.alertCtrl.create({
         header: 'Confirmar Downgrade',
         message: 'Ao mudar para um plano inferior, você manterá seus benefícios atuais até o fim do ciclo de cobrança. Após essa data, funcionalidades extras serão bloqueadas.',
         buttons: [
           {text: 'Cancelar', role: 'cancel'},
-          {text: 'Confirmar', handler: () => this.executeChange(planKey)}
+          {text: 'Confirmar', handler: async () => {
+            const newLoading = await this.loadingCtrl.create({message: 'Alterando plano...'});
+            await newLoading.present();
+            this.executeChange(planKey, newLoading);
+          }}
         ]
       });
       await alert.present();
       return;
     }
 
-    this.executeChange(planKey);
+    this.executeChange(planKey, loading);
 
   }
 
-  async executeChange(planKey: string) {
+  async executeChange(planKey: string, loading: HTMLIonLoadingElement) {
     
     if (this.user?.subscription_tier === 'essential') {
       this.subscriptionService.createCheckoutSession(planKey).subscribe({
         next: async (res) => {
+          await loading.dismiss();
           //redireciona o navegador para a página do stripe
           if (res.url) {
             window.location.href = res.url;
@@ -98,19 +107,22 @@ export class PlansPage implements OnInit {
           }
         },
         error: async (err) => {
+          await loading.dismiss();
           console.error('erro no checkout: ', err);
           this.presentAlert('Erro', 'Falha ao comunicar com o servidor de pagamentos.');
         }
       });
     } else {
       this.subscriptionService.changePlan(planKey).subscribe({
-        next:  () => {
+        next:  async () => {
+          await loading.dismiss();
           //redireciona o navegador para a página do stripe
           this.presentAlert('Sucesso', 'Plano alterado com sucesso!');
            this.loadUserProfile();
         },
-        error: () => {
-          console.error('erro no checkout: ');
+        error: async (err) => {
+          await loading.dismiss();
+          console.error('erro no checkout: ', err);
           this.presentAlert('Erro', 'Falha ao comunicar com o servidor de pagamentos.');
         }
       });

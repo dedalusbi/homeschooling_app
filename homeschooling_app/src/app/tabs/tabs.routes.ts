@@ -8,6 +8,11 @@ export const routes: Routes = [
     component: TabsPage,
     canActivate: [authGuard],
     children: [
+      
+      {
+        path: 'profile',
+        loadComponent: () => import('./profile/profile.page').then( m => m.ProfilePage)
+      }, 
       {
         path: 'planejamento',
         children: [
@@ -48,17 +53,10 @@ export const routes: Routes = [
           },
         ]
        
-      },  
+      } 
     ],
   },
-  {
-    path: 'planejamento',
-    loadComponent: () => import('./planejamento/planejamento.page').then( m => m.PlanejamentoPage)
-  },
   
-  {
-    path: 'profile',
-    loadComponent: () => import('./profile/profile.page').then( m => m.ProfilePage)
-  }
+  
   
 ];

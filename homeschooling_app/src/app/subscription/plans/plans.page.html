@@ -48,8 +48,9 @@
         </li>
       </ul>
 
-      <ion-button expand="block" fill="outline" class="h-12 normal-case font-medium pointer-events-none opacity-50">
-        Seu Plano Atual
+      <ion-button (click)="subscribe('essential')" expand="block" 
+        [fill]="getButtonState('essential').action ==='current' ? 'outline' : 'solid'" [color]="getButtonState('essential').color" [disabled]="getButtonState('essential').action === 'current'" class="h-12 normal-case font-bold" [class.opacity-50]="getButtonState('essential').action === 'current'">
+        {{ getButtonState('essential').label }}
       </ion-button>
     </div>
 
@@ -89,7 +90,7 @@
           <span class="font-semibold text-texto-profundo">Prioritário</span>
         </li>
       </ul>
-      <ion-button (click)="subscribe('family')" expand="block" [color]="getButtonState('family').color" [disabled]="getButtonState('family').action === current" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
+      <ion-button (click)="subscribe('family')" expand="block" [color]="getButtonState('family').color" [disabled]="getButtonState('family').action === 'current'" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
         {{ getButtonState('family').label }}
       </ion-button>
 
@@ -131,7 +132,7 @@
           <span class="font-semibold text-texto-profundo">Prioritário</span>
         </li>
       </ul>
-      <ion-button (click)="subscribe('educator')" expand="block" [color]="getButtonState('educator').color" [disabled]="getButtonState('educator').action === current" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
+      <ion-button (click)="subscribe('educator')" expand="block" [color]="getButtonState('educator').color" [disabled]="getButtonState('educator').action === 'current'" class="h-12 normal-case font-bold text-white shadow-md [--background:theme(colors.verde-crescimento)]">
         {{ getButtonState('educator').label }}
       </ion-button>
     </div>
