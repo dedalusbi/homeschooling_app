@@ -118,7 +118,7 @@ export class PlansPage implements OnInit {
           await loading.dismiss();
           //redireciona o navegador para a página do stripe
           this.presentAlert('Sucesso', 'Plano alterado com sucesso!');
-           this.loadUserProfile();
+          this.loadUserProfile();
         },
         error: async (err) => {
           await loading.dismiss();
