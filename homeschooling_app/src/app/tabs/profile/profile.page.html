@@ -35,7 +35,19 @@
         <ion-icon *ngIf="user?.subscription_tier !== 'essential'" name="diamond" class="text-amarelo-foco"></ion-icon>
       </h3>
 
-      <p class="text-xs opacity-75 mb-6">Válido até 15/11/2026</p>
+      <div class="mb-6 min-h-[20px]">
+        <p class="text-xs opacity-75" *ngIf="user?.subscription_tier === 'essential'">
+          Plano vitalício gratuito
+        </p>
+        <div *ngIf="user?.subscription_tier !== 'essential'">
+          <p class="text-xs opacity-75" *ngIf="!user?.cancel_at_period_end">
+            Próxima renovação: {{user?.current_period_end | date: 'dd/MM/yyy'}}
+          </p>
+          <p class="text-xs text-red-200 font-medium" *ngIf="user?.cancel_at_period_end">
+            Cancelado. Acesso disponível até: {{user?.current_period_end | date: 'dd/MM/yyyy'}}
+          </p>
+        </div>
+      </div>
 
       <ion-button expand="block" color="light" class="h-11 text-azul-sereno font-bold normal-case" (click)="manageSubscription()">
         {{user?.subscription_tier === 'essential' ? 'Fazer Upgrade' : 'Gerenciar Assinatura' }}

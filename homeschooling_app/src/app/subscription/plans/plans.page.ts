@@ -82,6 +82,7 @@ export class PlansPage implements OnInit {
             const newLoading = await this.loadingCtrl.create({message: 'Alterando plano...'});
             await newLoading.present();
             this.executeChange(planKey, newLoading);
+            this.loadUserProfile();
           }}
         ]
       });
