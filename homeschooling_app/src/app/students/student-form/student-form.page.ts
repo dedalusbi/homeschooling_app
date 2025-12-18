@@ -331,13 +331,41 @@ export class StudentFormPage implements OnInit {
         },
         error: async (err) => {
           await loading.dismiss();
-          let errorMessage ='Não foi possível adicionar o aluno.';
-          if (err.status === 403) {errorMessage = 'Você atingiu o limite de alunos para o seu plano.';}
-          else if (err.error?.errors) {errorMessage = Object.values(err.error.errors).flat().join(' ');}
-          await this.presentAlert('Erro', errorMessage);
+
+          if (err.status === 403) {
+            await this.presentLimitAlert();
+          } else {
+            let errorMessage = 'Não foi possível adicionar o aluno.';
+            if (err.error?.errors) {
+              errorMessage = Object.values(err.error.errors).flat().join(' ');
+            }
+            await this.presentAlert('Erro', errorMessage);
+          }
+          
+        
         }
       });
     }
+  }
+
+  async presentLimitAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'Limite Atingido',
+      message: 'Você atingiu o limite de alunos do seu plano atual. Faça um upgrade para adicionar mais alunos.',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Ver Planos',
+          handler: () => {
+            this.navCtrl.navigateForward('/plans');
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async presentAlert(header: string, message: string) {

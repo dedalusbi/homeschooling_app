@@ -114,17 +114,57 @@ export class PlansPage implements OnInit {
         }
       });
     } else {
+      //Se for troca entre pagos (Family <--> educator)
       this.subscriptionService.changePlan(planKey).subscribe({
-        next:  async () => {
+        next:  async (res: any) => {
           await loading.dismiss();
-          //redireciona o navegador para a página do stripe
-          this.presentAlert('Sucesso', 'Plano alterado com sucesso!');
-          this.loadUserProfile();
+
+          console.log(">>> Resposta da troca de plano: ");
+          console.dir(res);
+
+          const status = res.status || (res as any).data?.status;
+          const date = res.date || (res as any).data?.date;
+
+          //cenário de pagamento incompleto
+          if (status === 'incomplete') {
+            await this.alertCtrl.create({
+              header: 'Pagamento pendente',
+              message: 'A mudança de plano requer confirmação do pagamento. Por favor, verifique seu cartão ou acesse o portal de cobrança.',
+              buttons: ['OK']
+            }).then(a => a.present());
+            return;
+          }
+
+          //cenário 1: downgrade agendado
+          if (status == 'scheduled' && date) {
+            const dateStr = new Date(date * 1000).toLocaleDateString('pt-BR');
+            this.presentAlert('Alteração agendada', `Sua mudança para o plano ${planKey} ocorrerá automaticamente em ${dateStr}. Você mantém seus benefícios atuais até lá.`);
+            this.loadUserProfile();
+          }
+          else if (status === 'active') {
+            //cenário 2: upgrade imediato
+            const alert = await this.alertCtrl.create({
+            header: 'Sucesso',
+            message: 'Seu plano foi atualizado.',
+            buttons: [{
+              text: 'OK',
+              handler: () => {
+                this.navCtrl.navigateRoot('/tabs/profile');
+              }
+            }]
+            });
+            await alert.present();
+          } else {
+            console.warn("Status desconhecido:", status);
+            this.loadUserProfile();
+          }
+          
         },
         error: async (err) => {
           await loading.dismiss();
-          console.error('erro no checkout: ', err);
-          this.presentAlert('Erro', 'Falha ao comunicar com o servidor de pagamentos.');
+          console.error('erro na troca de plano: ', err);
+          const msg = err.error?.message || 'Falha ao comunicar com o servidor de pagamentos.';
+          this.presentAlert('Erro', msg);
         }
       });
     }

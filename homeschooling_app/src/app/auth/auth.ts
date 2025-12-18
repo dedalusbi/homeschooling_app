@@ -207,7 +207,7 @@ export class Auth {
   }
 
   getProfile() {
-    return this.http.get<{data: User}>(`${this.apiUrl}/me`);
+    return this.http.get<{data: User}>(`${this.apiUrl}/me?t=${new Date().getTime()}`);
   }
 
 }

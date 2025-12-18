@@ -21,12 +21,16 @@ export class SubscriptionService {
     );
   }
 
-  changePlan(planKey: string): Observable<{ message: string }> {
+  changePlan(planKey: string): Observable<{status: string; date?: number; message?: string; payment_url?: string; client_secret?: string;}> {
     // Envia um POST para /api/subscriptions/change
-    return this.http.post<{ message: string }>(
+    return this.http.post<any>(
       `${this.apiUrl}/subscriptions/change`,
       { plan: planKey }
     );
+  }
+
+  cancelScheduledChange(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/subscriptions/cancel-change`, {});
   }
   
 }
