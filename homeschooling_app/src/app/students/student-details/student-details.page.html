@@ -96,7 +96,7 @@
             </div>
             <ion-chip *ngIf="guardian.user_id === currentUserId" color="sucess" outline="true" class="text-xs h-5 px-2">Principal</ion-chip>
             <ion-button *ngIf="guardian.user_id !== currentUserId" fill="clear" color="danger" size="small"
-              >
+              (click)="confirmRemoveGuardian(guardian.user_id, guardian.name)">
               <ion-icon slot="icon-only" name="close"></ion-icon>
 
             </ion-button>

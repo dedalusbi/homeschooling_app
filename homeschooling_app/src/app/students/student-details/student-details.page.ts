@@ -82,10 +82,95 @@ export class StudentDetailsPage implements OnInit {
     
   }
 
-  inviteGuardian() {
-    //Placeholder para implementação futura
-    console.log('Abrir modal de convite...')
+  async inviteGuardian() {
+    if (!this.studentId) return;
 
+    const alert = await this.alertCtrl.create({
+      header: 'Convidar Responsável',
+      message: 'Insira o email de quem você deseja convidar para gerenciar este aluno.',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'exemplo@email.com'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Enviar Convite',
+          handler: (data) => {
+            if (data.email) {
+              this.sendInvite(data.email);
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+
+  }
+
+  private async sendInvite(email: string) {
+    const loading = await this.loadingCtrl.create({message: 'Enviando convite...'});
+    await loading.present();
+
+    this.studentService.inviteGuardian(email, this.studentId!).subscribe({
+      next: async() => {
+        await loading.dismiss();
+        await this.presentAlert('Sucesso', 'Convite enviado com sucesso para ' + email);
+      },
+      error: async(err) => {
+        await loading.dismiss();
+        console.error('erro ao convidar: ', err);
+        await this.presentAlert('Erro', 'Não foi possível enviar o convite');
+      }
+    });
+  }
+
+  async confirmRemoveGuardian(guardianUserId: string, guardianName: string) {
+    if (!this.studentId) return;
+    const alert = await this.alertCtrl.create({
+      header: 'Remover Responsável',
+      message: `Tem certeza que deseja remover o acesso de ${guardianName}?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Remover',
+          cssClass:'danger',
+          handler: () => {
+            this.executeRemoveGuardian(guardianUserId);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  private async executeRemoveGuardian(guardianUserId: string) {
+    const loading = await this.loadingCtrl.create({message: 'Removendo...'});
+    await loading.present();
+
+    this.studentService.removeGuardian(this.studentId!, guardianUserId).subscribe({
+      next: async() => {
+        await loading.dismiss();
+        await this.presentAlert('Sucesso', 'Responsável removido.');
+        this.loadStudent(this.studentId!);
+      },
+      error: async(err) => {
+        await loading.dismiss();
+        console.error('Erro ao remover: ', err);
+        await this.presentAlert('Erro', 'Não foi possível remover o responsável.');
+      }
+    });
   }
 
   changeStudentPhoto(studentId: string | undefined | null) {
