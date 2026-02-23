@@ -146,4 +146,22 @@ export class StudentService {
     // Envia um DELETE para /api/assessments/:id
     return this.http.delete<void>(`${this.apiUrl}/assessments/${assessmentId}`);
   }
+
+  // --- GESTÃO DE RESPONSÁVEIS (GUARDIANS) ----
+  getGuardians(studentId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/students/${studentId}/guardians`);
+  }
+
+  inviteGuardian(email: string, studentId: string, role: string = 'guardian'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/invitations`, {
+      email,
+      student_id: studentId,
+      role
+    });
+  }
+  
+  removeGuardian(studentId: string, guardianUserId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/students/${studentId}/guardians/${guardianUserId}`);
+  }
+
 }
