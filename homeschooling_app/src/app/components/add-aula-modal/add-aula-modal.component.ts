@@ -39,6 +39,8 @@ export class AddAulaModalComponent  implements OnInit {
   @Input() aulaParaEditar: ScheduleEntry | null = null;
   @Input() selectedDate: string = "";
 
+  guardians: any[] =[];
+  canAssignGuardian: boolean = false;
 
   materiasDisponiveis$ = new BehaviorSubject<Subject[]>([]);
   materiasLoading = new BehaviorSubject<boolean>(false);
@@ -155,6 +157,23 @@ export class AddAulaModalComponent  implements OnInit {
         this.loadMateriasParaAluno(alunoId);
       } else {
         this.materiasDisponiveis$.next([]);
+      }
+    });
+
+    //continuar daqui ***********===========
+    
+
+  }
+
+  
+  checkSubscription() {
+    //Fazendo chamada à auth para puxar os dados do usuário e verificar a "subscription tier"
+    this.auth.getProfile().subscribe({
+      next: (response) => {
+        const user = response.data;
+        //whitelist
+        const premiumUsers = ['educator', 'pro', 'premium'];
+        //continuar daqui...
       }
     });
   }
